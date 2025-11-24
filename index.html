@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轮回之爱 - 宇宙、火影与孙燕姿的完美融合</title>
+    <style>
+        /* 
+         * 基础样式重置
+         * 作用：清除浏览器默认样式，确保页面一致性
+         */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+            /* 为可拖拽播放器预留空间，防止遮挡内容 */
+            padding-bottom: 100px;
+        }
+
+        /* 
+         * 宇宙背景星星效果
+         * 原理：使用绝对定位创建随机分布的星星点
+         */
+        .universe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2; /* 置于最底层 */
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s infinite; /* 星星闪烁动画 */
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* 
+         * 主内容容器
+         * 作用：居中显示主要内容，设置最大宽度避免在大屏幕上过宽
+         */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 
+         * 代码显示区域样式
+         * 设计理念：模拟代码编辑器的深色主题
+         */
+        .code-display {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #ff4757;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px); /* 毛玻璃效果 */
+        }
+
+        /* 代码语法高亮颜色 */
+        .keyword { color: #ff4757; font-weight: bold; }    /* 关键字：红色 */
+        .comments { color: #6c757d; font-style: italic; }  /* 注释：灰色斜体 */
+        .string { color: #2ed573; }                        /* 字符串：绿色 */
+        .function { color: #3742fa; }                      /* 函数：蓝色 */
+        .number { color: #ffa502; }                        /* 数字：橙色 */
+        .space { margin-left: 1rem; }                      /* 缩进空格 */
+
+        /* 
+         * 轮回眼特效 - 火影忍者元素
+         * 设计：同心圆旋转动画，象征轮回
+         */
+        .rinnegan {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            opacity: 0.1; /* 半透明避免干扰主要内容 */
+            z-index: -1;
+        }
+
+        .circle {
+            position: absolute;
+            border: 2px solid #8a2be2; /* 紫色边框 */
+            border-radius: 50%;
+            animation: rotate 20s linear infinite;
+            /* 每个圆圈的旋转中心都在容器中心 */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* 不同大小的圆圈，不同旋转速度 */
+        .circle:nth-child(1) { width: 50px; height: 50px; }
+        .circle:nth-child(2) { width: 100px; height: 100px; animation-duration: 15s; }
+        .circle:nth-child(3) { width: 150px; height: 150px; animation-duration: 25s; }
+        .circle:nth-child(4) { width: 200px; height: 200px; animation-duration: 30s; }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* 
+         * 时间线事件样式
+         * 设计：左侧彩色边框，脉动动画吸引注意力
+         */
+        .timeline-event {
+            background: rgba(255, 71, 87, 0.1);
+            border-left: 4px solid #ff4757;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 10px 10px 0;
+            animation: pulse 2s infinite; /* 边框颜色脉动变化 */
+        }
+
+        @keyframes pulse {
+            0%, 100% { border-left-color: #ff4757; }   /* 红色 */
+            50% { border-left-color: #8a2be2; }        /* 紫色 */
+        }
+
+        /* 
+         * 查克拉节点 - 火影能量点
+         * 设计：发光的小圆点，象征能量聚集
+         */
+        .chakra-point {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ff4757;
+            border-radius: 50%;
+            animation: chakraGlow 2s infinite; /* 脉动发光效果 */
+        }
+
+        @keyframes chakraGlow {
+            0%, 100% { box-shadow: 0 0 5px #ff4757; }             /* 弱光 */
+            50% { box-shadow: 0 0 20px #ff4757, 0 0 30px #8a2be2; } /* 强光带紫色光晕 */
+        }
+
+        /* 
+         * 宇宙大爆炸效果
+         * 设计：从中心向外扩散的辐射渐变
+         */
+        .big-bang {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff4757, #8a2be2, #000);
+            transform: translate(-50%, -50%);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none; /* 防止干扰用户操作 */
+        }
+
+        .big-bang.active {
+            animation: bigBang 2s ease-out forwards;
+        }
+
+        @keyframes bigBang {
+            0% { 
+                width: 0; 
+                height: 0; 
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
+            }
+            50% {
+                width: 100vmax; /* 视口最大尺寸 */
+                height: 100vmax; 
+                opacity: 0.8;
+                box-shadow: 0 0 50px 20px rgba(138, 43, 226, 0.5);
+            }
+            100% { 
+                width: 200vmax; 
+                height: 200vmax; 
+                opacity: 0;
+                box-shadow: 0 0 100px 40px rgba(255, 71, 87, 0.3);
+            }
+        }
+
+        /* 
+         * 火影忍者经典语录样式
+         * 设计：橙色边框，半透明背景
+         */
+        .naruto-quote {
+            font-style: italic;
+            color: #ffa502;
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 1px solid #ffa502;
+            border-radius: 10px;
+            background: rgba(255, 165, 2, 0.1);
+        }
+
+        /* 
+         * 轮回周期计数器
+         * 位置：固定在右上角
+         */
+        .cycle-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid #8a2be2;
+            font-size: 14px;
+            backdrop-filter: blur(5px);
+            z-index: 100;
+        }
+
+        /* 
+         * 音乐播放器 - 完全可拖拽设计
+         * 创新点：用户可自由拖动到任意位置
+         */
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid #2ed573;
+            backdrop-filter: blur(15px);
+            width: 90%;
+            max-width: 500px;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(46, 213, 115, 0.3);
+            cursor: move; /* 拖拽光标提示 */
+            user-select: none; /* 防止文字被选中 */
+            transition: box-shadow 0.3s ease; /* 拖拽时的阴影效果 */
+        }
+
+        /* 拖拽时的视觉反馈 */
+        .music-player.dragging {
+            box-shadow: 0 0 40px rgba(46, 213, 115, 0.6);
+            border-color: #ff4757;
+        }
+
+        .music-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .music-title {
+            color: #2ed573;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .music-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        /* 
+         * 控制按钮设计
+         * 特点：大点击区域，悬停效果，渐变背景
+         */
+        .control-btn {
+            background: linear-gradient(45deg, #2ed573, #ff4757);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+            /* 确保整个按钮区域都可点击 */
+            position: relative;
+        }
+
+        /* 扩大点击区域的伪元素 */
+        .control-btn::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #2ed573;
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 
+         * 进度条容器
+         * 设计：可点击跳转，带拖拽手柄
+         */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin: 15px 0;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2ed573, #ff4757);
+            width: 0%;
+            transition: width 0.1s;
+            border-radius: 3px;
+        }
+
+        .progress-handle {
+            position: absolute;
+            top: 50%;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 0 0 10px rgba(46, 213, 115, 0.8);
+        }
+
+        .progress-container:hover .progress-handle {
+            opacity: 1;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .volume-control input {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        .volume-control input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #2ed573;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* 
+         * 歌词显示容器
+         * 设计：居中弹窗，毛玻璃背景
+         */
+        .lyrics-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px 40px;
+            border-radius: 20px;
+            border: 2px solid #ff4757;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            max-width: 80%;
+            z-index: 101;
+            box-shadow: 0 0 40px rgba(255, 71, 87, 0.4);
+            display: none;
+        }
+
+        .lyrics-container.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .lyrics-title {
+            color: #ff4757;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .current-lyric {
+            font-size: 24px;
+            color: #2ed573;
+            margin: 15px 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .next-lyric {
+            font-size: 16px;
+            color: #6c757d;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .lyrics-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #ff4757;
+            font-size: 20px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lyrics-close:hover {
+            background: rgba(255, 71, 87, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* 
+         * 大爆炸触发按钮
+         */
+        .bigbang-trigger {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 71, 87, 0.8);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .bigbang-trigger:hover {
+            background: #8a2be2;
+            transform: scale(1.05);
+        }
+
+        /* 
+         * 响应式设计 - 移动端适配
+         * 确保在小屏幕上也有良好体验
+         */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .code-display {
+                padding: 1rem;
+                font-size: 14px;
+            }
+            
+            .music-player {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .control-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 16px;
+            }
+            
+            .current-lyric {
+                font-size: 20px;
+            }
+            
+            .lyrics-container {
+                padding: 20px 30px;
+            }
+        }
+
+        /* 
+         * 拖拽边界限制样式
+         * 防止播放器被拖出视口
+         */
+        @media (max-height: 600px) {
+            .music-player {
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 
+     * 宇宙背景
+     * 通过JavaScript动态生成星星
+     -->
+    <div class="universe" id="universe"></div>
+
+    <!-- 
+     * 轮回眼特效
+     * 火影忍者中的轮回眼视觉元素
+     -->
+    <div class="rinnegan">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+    </div>
+
+    <!-- 大爆炸触发按钮 -->
+    <button class="bigbang-trigger" onclick="triggerBigBang()">💥 触发宇宙大爆炸</button>
+
+    <!-- 轮回周期计数器 -->
+    <div class="cycle-counter" id="cycleCounter">
+        轮回周期: <span id="currentCycle">0</span>
+    </div>
+
+    <!-- 
+     * 音乐播放器 - 可拖拽版本
+     * 用户可以通过拖拽标题栏来移动播放器位置
+     -->
+    <div class="music-player" id="musicPlayer">
+        <div class="music-header" id="dragHandle">
+            <div class="music-title">🎵 孙燕姿 - 克卜勒 (可拖拽)</div>
+            <button class="control-btn" onclick="toggleLyrics()" title="显示歌词">📝</button>
+        </div>
+        
+        <div class="time-display">
+            <span id="currentTime">0:00</span>
+            <span id="duration">4:09</span>
+        </div>
+        
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="progress-handle" id="progressHandle"></div>
+        </div>
+        
+        <div class="music-controls">
+            <button class="control-btn" onclick="skipBackward()" title="后退15秒">⏪</button>
+            <button class="control-btn" onclick="playPause()" id="playPauseBtn" title="播放/暂停">▶️</button>
+            <button class="control-btn" onclick="skipForward()" title="前进15秒">⏩</button>
+        </div>
+        
+        <div class="volume-control">
+            <span>🔊</span>
+            <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="0.7">
+            <span id="volumeValue">70%</span>
+        </div>
+    </div>
+
+    <!-- 歌词显示弹窗 -->
+    <div class="lyrics-container" id="lyricsContainer">
+        <button class="lyrics-close" onclick="toggleLyrics()">×</button>
+        <div class="lyrics-title">孙燕姿 - 克卜勒</div>
+        <div class="current-lyric" id="currentLyric">等不到你 成为我最闪亮的星星</div>
+        <div class="next-lyric" id="nextLyric">我依然愿意借给你我的光</div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="container">
+        <!-- 代码表白区域 -->
+        <div class="code-display">
+            <span class="comments">/**</span><br>
+            <span class="comments"> * 无限月读·轮回之爱 - Infinite Tsukuyomi of Eternal Love</span><br>
+            <span class="comments"> * 创作者: 刘康 (六道仙人转世)</span><br>
+            <span class="comments"> * 时间: 从创世之初到世界终结</span><br>
+            <span class="comments"> * 描述: 跨越多元宇宙的羁绊，每27年一次的轮回重生</span><br>
+            <span class="comments"> * 背景音乐: 孙燕姿《克卜勒》- 我们的唤醒之歌</span><br>
+            <span class="comments"> * 特殊: 27年轮回系统，宇宙大爆炸，火影忍者元素融合</span><br>
+            <span class="comments"> */</span><br>
+            <br>
+            <span class="keyword">const</span> 六道仙人 = <span class="string">"刘康"</span>;<br>
+            <span class="keyword">const</span> 辉夜姬 = <span class="string">"Vivi"</span>;<br>
+            <span class="keyword">const</span> 轮回周期 = <span class="number">27</span>; <span class="comments">// 年 - 火影中的轮回周期</span><br>
+            <span class="keyword">const</span> 查克拉总量 = <span class="number">999999</span>;<br>
+            <span class="keyword">const</span> 唤醒歌曲 = <span class="string">"孙燕姿 - 克卜勒"</span>; <span class="comments">// KTV唤醒记忆的歌曲</span><br>
+            <br>
+            <span class="comments">// 孙燕姿音乐系统 - 纪念在KTV被唤醒的瞬间</span><br>
+            <span class="keyword">class</span> 燕姿音乐系统 {<br>
+            <span class="space"><span class="keyword">constructor</span>() {</span><br>
+            <span class="space"><span class="space">this</span>.歌曲列表 = </span>[<br>
+            <span class="space"><span class="space"><span class="space">{ 名称: </span></span><span class="string">"克卜勒"</span>, 主题: <span class="string">"宇宙与命运"</span> },</span><br>
+            <span class="space"><span class="space"><span class="space">{ 名称: </span></span><span class="string">"遇见"</span>, 主题: <span class="string">"缘分与相遇"</span> },</span><br>
+            <span class="space"><span class="space"><span class="space">{ 名称: </span></span><span class="string">"开始懂了"</span>, 主题: <span class="string">"成长与领悟"</span> }</span><br>
+            <span class="space"><span class="space">];</span></span><br>
+            <span class="space"><span class="space">this</span>.当前歌曲 = </span><span class="number">0</span>;<br>
+            <span class="space">}</span><br>
+            <br>
+            <span class="space">播放唤醒之歌() {</span><br>
+            <span class="space"><span class="space">console</span>.log(<span class="string">"🎵 被孙燕姿的歌声唤醒... 在KTV的那一天永远铭记"</span>);</span><br>
+            <span class="space"><span class="space">触发大爆炸();</span></span><br>
+            <span class="space"><span class="space">return</span> <span class="string">"音乐的力量穿越轮回，唤醒沉睡的记忆"</span>;</span><br>
+            <span class="space">}</span><br>
+            <br>
+            <span class="space">切换歌曲() {</span><br>
+            <span class="space"><span class="space">this</span>.当前歌曲 = </span>(this.当前歌曲 + 1) % this.歌曲列表.length;<br>
+            <span class="space"><span class="space">return</span> this.歌曲列表[this.当前歌曲].名称;</span><br>
+            <span class="space">}</span><br>
+            }<br>
+            <br>
+            <span class="comments">// 六道模式·开启 - 火影忍者元素</span><br>
+            <span class="keyword">class</span> 六道模式 {<br>
+            <span class="space"><span class="keyword">constructor</span>() {</span><br>
+            <span class="space"><span class="space">this</span>.轮回眼 = </span><span class="keyword">true</span>;<br>
+            <span class="space"><span class="space">this</span>.求道玉 = </span><span class="number">9</span>;<br>
+            <span class="space"><span class="space">this</span>.阴阳遁 = </span><span class="keyword">true</span>;<br>
+            <span class="space"><span class="space">this</span>.背景音乐 = </span><span class="keyword">new</span> 燕姿音乐系统();<br>
+            <span class="space">}</span><br>
+            <br>
+            <span class="space">无限月读() {</span><br>
+            <span class="space"><span class="space">this</span>.背景音乐.播放唤醒之歌();</span><br>
+            <span class="space"><span class="space">return</span> <span class="string">"让世界陷入爱的幻术，只有我们的羁绊永恒"</span>;</span><br>
+            <span class="space">}</span><br>
+            <br>
+            <span class="space">地爆天星(爱意) {</span><br>
+            <span class="space"><span class="space">const</span> 引力 = </span>爱意 * 1000;<br>
+            <span class="space"><span class="space">return</span> <span class="string">`创造新宇宙，引力强度: ${引力}`</span>;</span><br>
+            <span class="space">}</span><br>
+            }<br>
+            <br>
+            <span class="comments">// 27年轮回系统 - 类似火影的转世设定</span><br>
+            <span class="keyword">class</span> 轮回系统 {<br>
+            <span class="space"><span class="keyword">constructor</span>() {</span><br>
+            <span class="space"><span class="space">this</span>.当前纪元 = </span><span class="number">0</span>;<br>
+            <span class="space"><span class="space">this</span>.轮回次数 = </span><span class="number">0</span>;<br>
+            <span class="space"><span class="space">this</span>.下次大事件 = </span>new Date().getFullYear() + 轮回周期;<br>
+            <span class="space">}</span><br>
+            <br>
+            <span class="space">宇宙重启() {</span><br>
+            <span class="space"><span class="space">this</span>.轮回次数++;</span><br>
+            <span class="space"><span class="space">this</span>.当前纪元++;</span><br>
+            <span class="space"><span class="space">触发大爆炸();</span></span><br>
+            <span class="space"><span class="space">console</span>.log(<span class="string">`💥 第${this.轮回次数}次宇宙大爆炸发生！`</span>);</span><br>
+            <span class="space"><span class="space">return</span> <span class="string">`第${this.轮回次数}次轮回开始 - 纪元${this.当前纪元}`</span>;</span><br>
+            <span class="space">}</span><br>
+            <br>
+            <span class="space">检查轮回() {</span><br>
+            <span class="space"><span class="space">const</span> 当前年份 = </span>new Date().getFullYear();<br>
+            <span class="space"><span class="space">const</span> 生日年份 = </span>当前年份 - (当前年份 % 轮回周期) + 6;<br>
+            <span class="space"><span class="space">return</span> 当前年份 === 生日年份;</span><br>
+            <span class="space">}</span><br>
+            }<br>
+            <br>
+            <span class="keyword">const</span> 六道 = <span class="keyword">new</span> 六道模式();<br>
+            <span class="keyword">const</span> 轮回 = <span class="keyword">new</span> 轮回系统();<br>
+            <br>
+            <span class="comments">// 永恒的誓言 - 类似鸣人对佐助的羁绊</span><br>
+            <span class="function">function</span> 忍者誓言() {<br>
+            <span class="space"><span class="keyword">if</span> (轮回.检查轮回()) {</span><br>
+            <span class="space"><span class="space">console</span>.log(轮回.宇宙重启());</span><br>
+            <span class="space"><span class="space">console</span>.log(六道.无限月读());</span><br>
+            <span class="space">}</span><br>
+            <span class="space"><span class="keyword">return</span> <span class="string">"即使轮回转世，这份羁绊也不会消失！"</span>;</span><br>
+            }<br>
+            <br>
+            <span class="comments">// 启动无限轮回</span><br>
+            <span class="keyword">setInterval</span>(() => {<br>
+            <span class="space">忍者誓言();</span><br>
+            <span class="space">更新轮回显示();</span><br>
+            <span class="space"><span class="keyword">if</span> (Math.random() < 0.01) {</span><br>
+            <span class="space"><span class="space">触发查克拉波动();</span></span><br>
+            <span class="space">}</span><br>
+            }, 1000);<br>
+        </div>
+
+        <!-- 火影经典语录 -->
+        <div class="naruto-quote">
+            "我向来都是有话直说，这就是我的忍道！"<br>
+            "孤独，不是被父母责备后难过的那种程度比得上的！"<br>
+            "因为火影——是我的梦想！"<br>
+            - 漩涡鸣人 (我们的精神写照)
+        </div>
+
+        <!-- 时间线事件 -->
+        <div class="timeline-event">
+            <strong>🌌 宇宙纪元 1:</strong> 六道仙人创造忍宗，爱的查克拉初次显现
+        </div>
+        <div class="timeline-event">
+            <strong>🎵 特殊事件:</strong> 在KTV被孙燕姿的歌声唤醒，命运之轮开始转动
+        </div>
+        <div class="timeline-event">
+            <strong>💫 宇宙纪元 27:</strong> 第一次轮回，辉夜姬降临，无限月读启动
+        </div>
+        <div class="timeline-event">
+            <strong>🔥 宇宙纪元 54:</strong> 忍者世界形成，爱的羁绊穿越时空
+        </div>
+        <div class="timeline-event">
+            <strong>❤️ 当前纪元:</strong> 代码与查克拉融合，创造数字世界的永恒之爱
+        </div>
+
+        <!-- 查克拉节点 -->
+        <div class="chakra-point" style="top: 100px; left: 100px;"></div>
+        <div class="chakra-point" style="top: 200px; right: 150px;"></div>
+        <div class="chakra-point" style="bottom: 150px; left: 200px;"></div>
+        <div class="chakra-point" style="bottom: 100px; right: 100px;"></div>
+    </div>
+
+    <!-- 宇宙大爆炸效果 -->
+    <div class="big-bang" id="bigBang"></div>
+
+    <!-- 音频元素 - 支持OGG格式 -->
+    <audio id="backgroundMusic">
+        <source src="music/yanzi-kepule.ogg" type="audio/ogg">
+        <source src="music/yanzi-kepule.mp3" type="audio/mp3">
+        您的浏览器不支持音频播放
+    </audio>
+
+    <script>
+        // ==================== 音乐播放器核心功能 ====================
+        
+        /**
+         * 获取所有需要的DOM元素
+         * 这些变量将在整个脚本中使用
+         */
+        const music = document.getElementById('backgroundMusic');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressHandle = document.getElementById('progressHandle');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+        const volumeControl = document.getElementById('volumeControl');
+        const volumeValue = document.getElementById('volumeValue');
+        const lyricsContainer = document.getElementById('lyricsContainer');
+        const currentLyric = document.getElementById('currentLyric');
+        const nextLyric = document.getElementById('nextLyric');
+        const musicPlayer = document.getElementById('musicPlayer');
+        const dragHandle = document.getElementById('dragHandle');
+
+        /**
+         * 精确的歌词时间轴
+         * 根据4分09秒歌曲精确设置，第9秒开始唱
+         * 格式：{ time: 秒数, text: "歌词内容" }
+         */
+        const lyrics = [
+            { time: 9, text: "等不到你 成为我最闪亮的星星" },
+            { time: 16, text: "我依然愿意借给你我的光" },
+            { time: 23, text: "投射给你 直到你那灿烂的光芒" },
+            { time: 30, text: "静静地挂在遥远的天上" },
+            { time: 37, text: "当你沉浸 天空那条冰冷的银河" },
+            { time: 44, text: "隐没在宇宙深处 我正穿越" },
+            { time: 51, text: "茫茫人海 为你点亮 一盏温暖的灯火" },
+            { time: 65, text: "一闪一闪亮晶晶 好像你的身体" },
+            { time: 72, text: "藏在众多孤星之中 还是找得到你" },
+            { time: 79, text: "挂在天上放光明 反射我的孤寂" },
+            { time: 86, text: "提醒我 我也只是一颗寂寞的星星" },
+            { time: 100, text: "浩瀚的世界里 更迭的人海里" },
+            { time: 107, text: "和你互相辉映 让我们延续" },
+            { time: 114, text: "用尽所有思念 唱一首歌给你" },
+            { time: 121, text: "给你 一闪一闪亮晶晶" },
+            { time: 128, text: "好像你的身体 藏在众多孤星之中" },
+            { time: 135, text: "还是找得到你 挂在天上放光明" },
+            { time: 142, text: "反射我的过去 提醒我" },
+            { time: 149, text: "我不再是一颗寂寞的星星" },
+            { time: 180, text: "等不到你 成为我最闪亮的星星" },
+            { time: 187, text: "我依然愿意借给你我的光" },
+            { time: 194, text: "投射给你 直到你那灿烂的光芒" },
+            { time: 201, text: "静静地挂在遥远的天上" },
+            { time: 208, text: "当你沉浸 天空那条冰冷的银河" },
+            { time: 215, text: "隐没在宇宙深处 我正穿越" },
+            { time: 222, text: "茫茫人海 为你点亮 一盏温暖的灯火" }
+        ];
+
+        // 当前显示的歌词索引
+        let currentLyricIndex = -1;
+        // 歌词窗口是否显示
+        let lyricsVisible = false;
+
+        /**
+         * 播放/暂停音乐
+         * 功能：切换音乐的播放状态，更新按钮图标
+         */
+        function playPause() {
+            if (music.paused) {
+                // 尝试播放音乐
+                music.play().then(() => {
+                    playPauseBtn.innerHTML = '⏸️';
+                    playPauseBtn.title = '暂停';
+                }).catch(e => {
+                    console.log('播放失败，需要用户交互');
+                    // 在控制台提示用户
+                    alert('请先点击页面任意位置激活音频权限，然后再次点击播放');
+                });
+            } else {
+                // 暂停音乐
+                music.pause();
+                playPauseBtn.innerHTML = '▶️';
+                playPauseBtn.title = '播放';
+            }
+        }
+
+        /**
+         * 前进15秒
+         * 功能：快进15秒，但不超过歌曲总时长
+         */
+        function skipForward() {
+            music.currentTime = Math.min(music.duration, music.currentTime + 15);
+            updateProgress();
+        }
+
+        /**
+         * 后退15秒
+         * 功能：后退15秒，但不小于0
+         */
+        function skipBackward() {
+            music.currentTime = Math.max(0, music.currentTime - 15);
+            updateProgress();
+        }
+
+        /**
+         * 切换歌词显示/隐藏
+         * 功能：显示或隐藏歌词弹窗
+         */
+        function toggleLyrics() {
+            lyricsVisible = !lyricsVisible;
+            if (lyricsVisible) {
+                lyricsContainer.classList.add('show');
+            } else {
+                lyricsContainer.classList.remove('show');
+            }
+        }
+
+        /**
+         * 更新歌词显示
+         * 功能：根据当前播放时间显示对应的歌词
+         */
+        function updateLyrics() {
+            const currentTime = music.currentTime;
+            
+            // 从后往前查找当前应该显示的歌词
+            let newIndex = -1;
+            for (let i = lyrics.length - 1; i >= 0; i--) {
+                if (currentTime >= lyrics[i].time) {
+                    newIndex = i;
+                    break;
+                }
+            }
+            
+            // 如果歌词索引发生变化，更新显示
+            if (newIndex !== currentLyricIndex) {
+                currentLyricIndex = newIndex;
+                
+                if (currentLyricIndex >= 0) {
+                    // 更新当前歌词
+                    currentLyric.textContent = lyrics[currentLyricIndex].text;
+                    
+                    // 显示下一句歌词（如果有）
+                    if (currentLyricIndex < lyrics.length - 1) {
+                        nextLyric.textContent = lyrics[currentLyricIndex + 1].text;
+                    } else {
+                        nextLyric.textContent = '';
+                    }
+                    
+                    // 添加高亮动画效果
+                    currentLyric.style.transform = 'scale(1.1)';
+                    currentLyric.style.color = '#ff4757';
+                    setTimeout(() => {
+                        currentLyric.style.transform = 'scale(1)';
+                        currentLyric.style.color = '#2ed573';
+                    }, 300);
+                } else {
+                    // 歌曲开始前显示提示
+                    currentLyric.textContent = '音乐即将开始...';
+                    nextLyric.textContent = lyrics[0].text;
+                }
+            }
+        }
+
+        /**
+         * 更新进度条
+         * 功能：更新进度条宽度、时间显示和歌词
+         */
+        function updateProgress() {
+            if (music.duration) {
+                // 计算播放进度百分比
+                const percent = (music.currentTime / music.duration) * 100;
+                progressBar.style.width = percent + '%';
+                progressHandle.style.left = percent + '%';
+                
+                // 更新时间显示
+                currentTimeEl.textContent = formatTime(music.currentTime);
+                durationEl.textContent = formatTime(music.duration);
+                
+                // 更新歌词
+                updateLyrics();
+            }
+        }
+
+        /**
+         * 格式化时间为 MM:SS
+         * @param {number} seconds - 秒数
+         * @returns {string} 格式化后的时间字符串
+         */
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        /**
+         * 设置进度条点击跳转
+         * 功能：点击进度条任意位置跳转到对应时间
+         */
+        function setupProgressBar() {
+            progressContainer.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                music.currentTime = percent * music.duration;
+                updateProgress();
+            });
+        }
+
+        // 音量控制事件监听
+        volumeControl.addEventListener('input', function() {
+            music.volume = this.value;
+            volumeValue.textContent = Math.round(this.value * 100) + '%';
+        });
+
+        // ==================== 播放器拖拽功能 ====================
+        
+        /**
+         * 播放器拖拽功能
+         * 功能：允许用户拖动播放器到任意位置
+         */
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+
+        /**
+         * 开始拖拽
+         * @param {MouseEvent} e - 鼠标事件
+         */
+        function startDrag(e) {
+            // 只响应左键点击
+            if (e.button !== 0) return;
+            
+            isDragging = true;
+            musicPlayer.classList.add('dragging');
+            
+            // 计算鼠标相对于播放器左上角的偏移
+            const rect = musicPlayer.getBoundingClientRect();
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+            
+            // 防止文本选中和默认拖拽行为
+            e.preventDefault();
+        }
+
+        /**
+         * 拖拽中
+         * @param {MouseEvent} e - 鼠标事件
+         */
+        function onDrag(e) {
+            if (!isDragging) return;
+            
+            // 计算新的位置（限制在视口范围内）
+            let newX = e.clientX - dragOffset.x;
+            let newY = e.clientY - dragOffset.y;
+            
+            // 边界检查 - 确保播放器不会完全移出视口
+            const maxX = window.innerWidth - musicPlayer.offsetWidth;
+            const maxY = window.innerHeight - musicPlayer.offsetHeight;
+            
+            newX = Math.max(0, Math.min(newX, maxX));
+            newY = Math.max(0, Math.min(newY, maxY));
+            
+            // 应用新位置
+            musicPlayer.style.left = newX + 'px';
+            musicPlayer.style.top = newY + 'px';
+            musicPlayer.style.transform = 'none'; // 移除初始的居中变换
+        }
+
+        /**
+         * 结束拖拽
+         */
+        function endDrag() {
+            isDragging = false;
+            musicPlayer.classList.remove('dragging');
+        }
+
+        // 设置拖拽事件监听
+        dragHandle.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', endDrag);
+
+        // 触摸设备支持
+        dragHandle.addEventListener('touchstart', function(e) {
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            startDrag(mouseEvent);
+        });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            onDrag(mouseEvent);
+            e.preventDefault();
+        });
+
+        document.addEventListener('touchend', endDrag);
+
+        // ==================== 其他系统功能 ====================
+        
+        /**
+         * 创建星空背景
+         * 功能：在宇宙背景中生成随机分布的星星
+         */
+        function createStars() {
+            const universe = document.getElementById('universe');
+            // 创建200颗星星
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                // 随机位置
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                // 随机大小
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                // 随机闪烁延迟
+                star.style.animationDelay = Math.random() * 3 + 's';
+                universe.appendChild(star);
+            }
+        }
+
+        /**
+         * 触发宇宙大爆炸
+         * 功能：播放大爆炸动画效果
+         */
+        function triggerBigBang() {
+            const bigBang = document.getElementById('bigBang');
+            // 重置动画
+            bigBang.classList.remove('active');
+            // 触发重排以重新启动动画
+            void bigBang.offsetWidth;
+            bigBang.classList.add('active');
+            
+            // 添加页面震动效果
+            document.body.style.animation = 'none';
+            setTimeout(() => {
+                document.body.style.animation = 'shake 0.5s';
+            }, 10);
+            
+            console.log("💥 宇宙大爆炸已触发！");
+        }
+
+        /**
+         * 更新轮回显示
+         * 功能：计算并显示当前轮回周期
+         */
+        function updateCycleDisplay() {
+            const currentYear = new Date().getFullYear();
+            // 计算当前轮回周期 (假设从2024年开始)
+            const cycle = Math.floor((currentYear - 2024) / 27) + 1;
+            document.getElementById('currentCycle').textContent = cycle;
+        }
+
+        /**
+         * 触发查克拉波动
+         * 功能：重置查克拉节点的动画，创建脉动效果
+         */
+        function triggerChakraFluctuation() {
+            const points = document.querySelectorAll('.chakra-point');
+            points.forEach(point => {
+                point.style.animation = 'none';
+                setTimeout(() => {
+                    point.style.animation = 'chakraGlow 2s infinite';
+                }, 10);
+            });
+        }
+
+        // ==================== 初始化设置 ====================
+        
+        /**
+         * 页面加载完成后执行初始化
+         * 这是整个应用的入口点
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. 创建星空背景
+            createStars();
+            
+            // 2. 更新轮回显示
+            updateCycleDisplay();
+            
+            // 3. 设置音乐事件监听
+            music.addEventListener('timeupdate', updateProgress);
+            music.addEventListener('ended', function() {
+                // 歌曲结束时重置播放按钮
+                playPauseBtn.innerHTML = '▶️';
+                playPauseBtn.title = '播放';
+            });
+            
+            // 4. 设置进度条点击跳转
+            setupProgressBar();
+            
+            // 5. 设置初始音量
+            music.volume = volumeControl.value;
+            
+            // 6. 添加震动动画CSS
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    25% { transform: translateX(-10px); }
+                    75% { transform: translateX(10px); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // 7. 用户交互后初始化音乐（浏览器安全策略）
+            document.addEventListener('click', function initAudio() {
+                // 移除事件监听，避免重复触发
+                document.removeEventListener('click', initAudio);
+                
+                // 尝试播放然后立即暂停，以激活音频上下文
+                music.volume = 0;
+                music.play().then(() => {
+                    music.pause();
+                    music.volume = volumeControl.value;
+                    console.log('🎵 音频系统已激活，可以正常播放');
+                }).catch(e => {
+                    console.log('音频初始化失败，需要用户交互');
+                });
+            });
+            
+            // 8. 模拟轮回系统 - 每27秒演示一次大爆炸
+            setInterval(() => {
+                if (Math.random() < 0.05) { // 5%几率触发演示
+                    triggerBigBang();
+                    updateCycleDisplay();
+                }
+            }, 27000);
+            
+            // 9. 随机触发查克拉波动
+            setInterval(() => {
+                if (Math.random() < 0.01) {
+                    triggerChakraFluctuation();
+                }
+            }, 1000);
+            
+            // 10. 控制台输出欢迎信息
+            console.log(`%c
+             🌀 六道轮回系统已启动 🌀
+             🎵 音乐时长: 4分09秒 (第9秒开始演唱)
+             💥 大爆炸系统: 就绪
+             📝 歌词系统: 精确时间轴对齐
+             🎮 播放器: 可拖拽设计
+             🌟 使用说明: 拖动播放器标题可移动位置
+            `, 'color: #ff4757; font-size: 14px; font-weight: bold;');
+        });
+    </script>
+</body>
+</html>
