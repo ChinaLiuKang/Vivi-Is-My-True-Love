@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>轮回之爱 - Eternal Love</title>
     <style>
-        /* ==================== 保护页面样式 ==================== */
+        /* ==================== 全局样式 ==================== */
         * {
             margin: 0;
             padding: 0;
@@ -16,11 +16,95 @@
             background: #000;
             color: #fff;
             font-family: 'Courier New', monospace;
-            overflow-x: hidden; /* 只隐藏横向溢出 */
-            /* 【修改】移除 overflow: hidden 以允许页面整体滚动 */
+            overflow-x: hidden;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            cursor: default;
         }
 
-        /* 密码保护界面样式 */
+        img {
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+        }
+
+        /* ==================== 安全防护层样式 ==================== */
+        .anti-inspect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff4757;
+            font-size: 24px;
+            text-align: center;
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .anti-inspect .warning-icon {
+            font-size: 48px;
+            animation: pulse 1s infinite;
+        }
+
+        .anti-inspect .warning-text {
+            max-width: 600px;
+            padding: 20px;
+            background: rgba(255, 71, 87, 0.1);
+            border-radius: 10px;
+            border: 2px solid #ff4757;
+        }
+
+        .obfuscation-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(255, 71, 87, 0.05),
+                rgba(255, 71, 87, 0.05) 10px,
+                rgba(138, 43, 226, 0.05) 10px,
+                rgba(138, 43, 226, 0.05) 20px
+            );
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .keyboard-watcher {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #ff4757;
+            font-size: 12px;
+            color: #6c757d;
+            z-index: 1001;
+            display: none;
+        }
+
+        .anti-debug {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* ==================== 密码保护界面样式 ==================== */
         .protected-screen {
             text-align: center;
             padding: 2rem;
@@ -29,10 +113,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 1000;
-            background: rgba(0, 0, 0, 0.9);
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.95);
             border-radius: 15px;
             border: 2px solid #ff4757;
+            box-shadow: 0 0 50px rgba(255, 71, 87, 0.3);
+            backdrop-filter: blur(10px);
         }
 
         .title {
@@ -40,6 +126,7 @@
             margin-bottom: 2rem;
             color: #ff4757;
             font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
         }
 
         .password-form {
@@ -56,6 +143,17 @@
             width: 100%;
             margin-bottom: 1rem;
             text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        .password-input:focus {
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+            border-color: #8a2be2;
         }
 
         .submit-btn {
@@ -68,6 +166,8 @@
             cursor: pointer;
             width: 100%;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .submit-btn:hover {
@@ -75,22 +175,33 @@
             box-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
         }
 
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
         .hint {
             font-size: 0.9rem;
             color: #6c757d;
             margin-top: 1rem;
             line-height: 1.5;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #8a2be2;
         }
 
         .error-message {
             color: #ff6b6b;
             margin-top: 1rem;
+            padding: 10px;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 8px;
+            border: 1px solid #ff6b6b;
             display: none;
+            animation: shake 0.5s ease-in-out;
         }
 
-        /* ==================== 主内容样式 ==================== */
-
-        /* 宇宙背景样式 */
+        /* ==================== 宇宙背景样式 ==================== */
         .universe {
             position: fixed;
             top: 0;
@@ -100,7 +211,6 @@
             z-index: -2;
         }
 
-        /* 星星样式 */
         .star {
             position: absolute;
             background: #fff;
@@ -108,23 +218,22 @@
             animation: twinkle 3s infinite;
         }
 
-        /* 星星闪烁动画 */
         @keyframes twinkle {
             0%, 100% { opacity: 0.3; }
             50% { opacity: 1; }
         }
 
-        /* 【修改】主容器样式 - 恢复宽松布局，仅自身可滚动 */
+        /* ==================== 主容器样式 ==================== */
         .container {
             max-width: 1200px;
-            margin: 50px auto 180px auto; /* 增加上下外边距，宽松布局 */
+            margin: 50px auto 180px auto;
             padding: 2rem;
             position: relative;
             z-index: 1;
-            /* 不再设置 max-height 和 overflow，让页面自然滚动 */
+            display: none;
         }
 
-        /* 【修改】代码显示区域样式 - 恢复原有边框，仅内部可滚动 */
+        /* ==================== 代码显示区域样式 ==================== */
         .code-display {
             background: rgba(0, 0, 0, 0.8);
             border: 2px solid #ff4757;
@@ -133,14 +242,12 @@
             margin: 2rem 0;
             position: relative;
             backdrop-filter: blur(5px);
-            /* 【修复】核心：设置固定高度并允许内部滚动 */
-            max-height: 60vh; /* 占据视口60%的高度 */
-            overflow-y: auto; /* 垂直方向溢出时显示滚动条 */
-            scrollbar-width: thin; /* 美化滚动条 */
+            max-height: 60vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
             scrollbar-color: #ff4757 rgba(255, 255, 255, 0.1);
         }
 
-        /* 【修复】Webkit浏览器滚动条样式 */
         .code-display::-webkit-scrollbar {
             width: 8px;
         }
@@ -164,61 +271,80 @@
         .number { color: #ffa502; }
         .space { margin-left: 1rem; }
 
-        /* ==================== 【新增】三种瞳术特效样式 ==================== */
-
-        /* 轮回眼特效样式 */
+        /* ==================== 增强三种瞳术特效样式 ==================== */
         .rinnegan-eye {
             position: fixed;
-            width: 180px;
-            height: 180px;
-            opacity: 0.15; /* 半透明作为背景 */
+            width: 220px; /* 增大尺寸 */
+            height: 220px;
+            opacity: 0.35; /* 增加不透明度 */
             z-index: -1;
             pointer-events: none;
+            display: none;
+            filter: drop-shadow(0 0 15px #8a2be2);
+            animation: eyeGlow 4s infinite alternate;
         }
 
-        /* 轮回眼位置 - 左上 */
         .rinnegan-eye.left-top {
             top: 15%;
             left: 10%;
         }
 
-        /* 轮回眼内部圆圈 */
         .rinnegan-circle {
             position: absolute;
-            border: 2px solid #8a2be2; /* 紫色 */
+            border: 3px solid #8a2be2;
             border-radius: 50%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            animation: rinneganRotate 20s linear infinite;
+            animation: rinneganRotate 15s linear infinite;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
         }
-        .rinnegan-circle:nth-child(1) { width: 30px; height: 30px; animation-delay: 0s; }
-        .rinnegan-circle:nth-child(2) { width: 60px; height: 60px; animation-delay: -5s; animation-duration: 15s; }
-        .rinnegan-circle:nth-child(3) { width: 90px; height: 90px; animation-delay: -10s; animation-duration: 25s; }
-        .rinnegan-circle:nth-child(4) { width: 120px; height: 120px; animation-delay: -15s; animation-duration: 30s; }
+        .rinnegan-circle:nth-child(1) { 
+            width: 40px; height: 40px; 
+            animation-delay: 0s; 
+            border-color: #ff4757;
+        }
+        .rinnegan-circle:nth-child(2) { 
+            width: 80px; height: 80px; 
+            animation-delay: -3s; 
+            animation-duration: 12s; 
+            border-color: #2ed573;
+        }
+        .rinnegan-circle:nth-child(3) { 
+            width: 120px; height: 120px; 
+            animation-delay: -6s; 
+            animation-duration: 18s; 
+            border-color: #ffa502;
+        }
+        .rinnegan-circle:nth-child(4) { 
+            width: 160px; height: 160px; 
+            animation-delay: -9s; 
+            animation-duration: 24s; 
+            border-color: #3742fa;
+        }
 
         @keyframes rinneganRotate {
             from { transform: translate(-50%, -50%) rotate(0deg); }
             to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        /* 写轮眼特效样式 */
         .sharingan-eye {
             position: fixed;
-            width: 150px;
-            height: 150px;
-            opacity: 0.15;
+            width: 180px; /* 增大尺寸 */
+            height: 180px;
+            opacity: 0.4; /* 增加不透明度 */
             z-index: -1;
             pointer-events: none;
+            display: none;
+            filter: drop-shadow(0 0 20px #ff0000);
+            animation: sharinganPulse 2s infinite alternate;
         }
 
-        /* 写轮眼位置 - 右上 */
         .sharingan-eye.right-top {
             top: 20%;
             right: 8%;
         }
 
-        /* 写轮眼内部图案 (简化版三勾玉) */
         .sharingan-inner {
             position: absolute;
             width: 100%;
@@ -226,45 +352,65 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            animation: sharinganSpin 10s linear infinite;
+            animation: sharinganSpin 8s linear infinite;
         }
         .tomaloe {
             position: absolute;
-            width: 20px;
-            height: 20px;
-            background: #ff0000; /* 红色 */
+            width: 25px; /* 增大尺寸 */
+            height: 25px;
+            background: #ff0000;
             border-radius: 50%;
             top: 50%;
             left: 50%;
             transform-origin: 0 0;
+            box-shadow: 0 0 15px #ff0000;
+            animation: tomaloeGlow 1.5s infinite alternate;
         }
-        .tomaloe:nth-child(1) { transform: translate(-50%, -50%) rotate(0deg) translateX(40px); }
-        .tomaloe:nth-child(2) { transform: translate(-50%, -50%) rotate(120deg) translateX(40px); }
-        .tomaloe:nth-child(3) { transform: translate(-50%, -50%) rotate(240deg) translateX(40px); }
+        .tomaloe:nth-child(1) { 
+            transform: translate(-50%, -50%) rotate(0deg) translateX(55px); 
+            animation-delay: 0s;
+        }
+        .tomaloe:nth-child(2) { 
+            transform: translate(-50%, -50%) rotate(120deg) translateX(55px); 
+            animation-delay: 0.5s;
+        }
+        .tomaloe:nth-child(3) { 
+            transform: translate(-50%, -50%) rotate(240deg) translateX(55px); 
+            animation-delay: 1s;
+        }
 
         @keyframes sharinganSpin {
             from { transform: translate(-50%, -50%) rotate(0deg); }
             to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        /* 白眼特效样式 */
-        .byakugan-eye {
-            position: fixed;
-            width: 140px;
-            height: 140px;
-            opacity: 0.2;
-            z-index: -1;
-            pointer-events: none;
+        @keyframes sharinganPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
         }
 
-        /* 白眼位置 - 底部 */
+        @keyframes tomaloeGlow {
+            0% { box-shadow: 0 0 10px #ff0000; }
+            100% { box-shadow: 0 0 25px #ff0000, 0 0 40px #ff4757; }
+        }
+
+        .byakugan-eye {
+            position: fixed;
+            width: 170px; /* 增大尺寸 */
+            height: 170px;
+            opacity: 0.35; /* 增加不透明度 */
+            z-index: -1;
+            pointer-events: none;
+            display: none;
+            filter: drop-shadow(0 0 15px #87ceeb);
+        }
+
         .byakugan-eye.bottom-center {
             bottom: 18%;
             left: 50%;
             transform: translateX(-50%);
         }
 
-        /* 白眼内部 (青白色同心圆) */
         .byakugan-inner {
             position: absolute;
             width: 100%;
@@ -275,30 +421,54 @@
         }
         .byakugan-circle {
             position: absolute;
-            border: 3px solid #87ceeb; /* 青白色 */
+            border: 4px solid #87ceeb;
             border-radius: 50%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            animation: byakuganPulse 4s ease-in-out infinite;
+            animation: byakuganPulse 3s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(135, 206, 235, 0.3);
         }
-        .byakugan-circle:nth-child(1) { width: 30px; height: 30px; animation-delay: 0s; }
-        .byakugan-circle:nth-child(2) { width: 70px; height: 70px; animation-delay: 0.5s; }
-        .byakugan-circle:nth-child(3) { width: 100%; height: 100%; animation-delay: 1s; }
+        .byakugan-circle:nth-child(1) { 
+            width: 40px; height: 40px; 
+            animation-delay: 0s; 
+            border-color: #87ceeb;
+        }
+        .byakugan-circle:nth-child(2) { 
+            width: 90px; height: 90px; 
+            animation-delay: 0.3s; 
+            border-color: #7fffd4;
+        }
+        .byakugan-circle:nth-child(3) { 
+            width: 100%; height: 100%; 
+            animation-delay: 0.6s; 
+            border-color: #e0ffff;
+        }
 
         @keyframes byakuganPulse {
-            0%, 100% { opacity: 0.3; border-width: 2px; }
-            50% { opacity: 0.7; border-width: 4px; box-shadow: 0 0 15px #87ceeb; }
+            0%, 100% { 
+                opacity: 0.4; 
+                border-width: 2px; 
+                box-shadow: 0 0 10px #87ceeb;
+            }
+            50% { 
+                opacity: 0.9; 
+                border-width: 5px; 
+                box-shadow: 0 0 30px #87ceeb, 0 0 50px #e0ffff;
+            }
+        }
+
+        @keyframes eyeGlow {
+            0% { filter: drop-shadow(0 0 10px currentColor); }
+            100% { filter: drop-shadow(0 0 25px currentColor); }
         }
 
         /* ==================== 通用组件样式 ==================== */
-
-        /* 时间线事件样式 */
         .timeline-event {
             background: rgba(255, 71, 87, 0.1);
             border-left: 4px solid #ff4757;
-            padding: 1.5rem; /* 增加内边距 */
-            margin: 1.5rem 0; /* 增加外边距 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
             border-radius: 0 10px 10px 0;
             animation: pulse 2s infinite;
         }
@@ -308,22 +478,28 @@
             50% { border-left-color: #8a2be2; }
         }
 
-        /* 查克拉节点样式 */
         .chakra-point {
             position: absolute;
-            width: 10px;
-            height: 10px;
+            width: 12px; /* 增大尺寸 */
+            height: 12px;
             background: #ff4757;
             border-radius: 50%;
             animation: chakraGlow 2s infinite;
+            display: none;
+            box-shadow: 0 0 10px #ff4757;
         }
 
         @keyframes chakraGlow {
-            0%, 100% { box-shadow: 0 0 5px #ff4757; }
-            50% { box-shadow: 0 0 20px #ff4757, 0 0 30px #8a2be2; }
+            0%, 100% { 
+                box-shadow: 0 0 5px #ff4757, 0 0 10px #ff4757;
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 25px #ff4757, 0 0 40px #8a2be2;
+                transform: scale(1.2);
+            }
         }
 
-        /* 宇宙大爆炸效果 */
         .big-bang {
             position: fixed;
             top: 50%;
@@ -363,19 +539,17 @@
             }
         }
 
-        /* 火影语录样式 */
         .naruto-quote {
             font-style: italic;
             color: #ffa502;
             text-align: center;
-            margin: 2.5rem 0; /* 增加外边距 */
+            margin: 2.5rem 0;
             padding: 1.5rem;
             border: 1px solid #ffa502;
             border-radius: 10px;
             background: rgba(255, 165, 2, 0.1);
         }
 
-        /* 周期计数器样式 */
         .cycle-counter {
             position: fixed;
             top: 20px;
@@ -387,9 +561,10 @@
             font-size: 14px;
             backdrop-filter: blur(5px);
             z-index: 100;
+            display: none;
         }
 
-        /* 音乐播放器样式 */
+        /* ==================== 音乐播放器样式 ==================== */
         .music-player {
             position: fixed;
             bottom: 20px;
@@ -407,19 +582,21 @@
             cursor: move;
             user-select: none;
             transition: box-shadow 0.3s ease;
+            display: none;
         }
 
         .music-player.dragging {
-            box-shadow: 0 0 40px rgba(46, 213, 115, 0.6);
+            box-shadow: 0 0 50px rgba(46, 213, 115, 0.8);
             border-color: #ff4757;
+            transform: translateX(-50%) scale(1.02);
         }
 
-        /* ... 音乐播放器内部样式保持不变 ... */
         .music-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            cursor: move;
         }
 
         .music-title {
@@ -538,7 +715,7 @@
             cursor: pointer;
         }
 
-        /* 歌词显示容器 */
+        /* ==================== 歌词显示样式 ==================== */
         .lyrics-container {
             position: fixed;
             top: 50%;
@@ -612,7 +789,7 @@
             background: rgba(255, 71, 87, 0.2);
         }
 
-        /* 大爆炸触发按钮 */
+        /* ==================== 大爆炸按钮样式 ==================== */
         .bigbang-trigger {
             position: fixed;
             top: 20px;
@@ -627,6 +804,7 @@
             z-index: 100;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
+            display: none;
         }
 
         .bigbang-trigger:hover {
@@ -634,22 +812,21 @@
             transform: scale(1.05);
         }
 
-        /* 响应式设计 */
+        /* ==================== 响应式设计 ==================== */
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
-                margin: 30px auto 150px auto; /* 移动端调整边距 */
+                margin: 30px auto 150px auto;
             }
 
             .code-display {
                 padding: 1.5rem;
                 font-size: 14px;
-                max-height: 50vh; /* 移动端代码区稍矮 */
+                max-height: 50vh;
             }
 
-            /* 移动端调整瞳术大小和位置 */
             .rinnegan-eye, .sharingan-eye, .byakugan-eye {
-                transform: scale(0.7);
+                transform: scale(0.8);
             }
             .rinnegan-eye.left-top { top: 10%; left: 5%; }
             .sharingan-eye.right-top { top: 12%; right: 5%; }
@@ -680,36 +857,103 @@
             }
         }
 
-        /* 密码错误抖动动画 */
+        /* ==================== 动画效果 ==================== */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-10px); }
             75% { transform: translateX(10px); }
         }
+        
+        @keyframes unlockFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- ==================== 安全防护层 ==================== -->
+    <div class="anti-inspect" id="antiInspect">
+        <div class="warning-icon">⚠️</div>
+        <div class="warning-text">
+            <h3>Security Warning</h3>
+            <p>Developer tools detected!</p>
+            <p>Page has been locked for security.</p>
+            <p>Please close developer tools and refresh the page.</p>
+            <h3>安全警告</h3>
+            <p>检测到开发者工具已打开！</p>
+            <p>为了保护内容安全，页面已被锁定。</p>
+            <p>请关闭开发者工具并刷新页面。</p>
+        </div>
+    </div>
+
+    <!-- ==================== 混淆层 ==================== -->
+    <div class="obfuscation-layer"></div>
+
+    <!-- ==================== 键盘监听器 ==================== -->
+    <div class="keyboard-watcher" id="keyboardWatcher">
+        Security monitoring...
+    </div>
+
+    <!-- ==================== 防调试保护 ==================== -->
+    <div class="anti-debug" id="antiDebug">
+        <script>
+            var fakePasswords = [
+                "Password error, please try again",
+                "This is not the correct password",
+                "Keep trying...",
+                "Password may be elsewhere",
+                "Wish Xueyou Ge eternal happiness",
+                "Vivi Jie is the most beautiful",
+                "Reincarnation love eternal"
+            ];
+            function fakeCheckPassword(pass) {
+                console.log("Fake password check:", pass);
+                return false;
+            }
+            var FAKE_PASSWORD = "fake password 123";
+            var ANOTHER_FAKE = "another fake 456";
+        </script>
+        <style>
+            /* Fake CSS comments with misleading info */
+            /* Password: 123456 */
+            /* Unlock password: admin */
+            /* Security code: 0000 */
+        </style>
+    </div>
+
     <!-- ==================== 密码保护界面 ==================== -->
     <div class="protected-screen" id="protectedScreen">
         <div class="title">Eternal Love 🔒</div>
         <div class="password-form">
             <input type="text" class="password-input" id="passwordInput"
-                   placeholder="Enter the secret phrase..."
-                   onkeypress="checkEnter(event)">
-            <button class="submit-btn" onclick="checkPassword()">Unlock Content</button>
+                   placeholder="Enter Chinese blessing / 请输入中文祝福语..."
+                   onkeypress="checkEnter(event)"
+                   autocomplete="off">
+            <button class="submit-btn" onclick="checkPassword()" id="submitBtn">Unlock Content / 解锁内容</button>
         </div>
         <div class="hint">
-            💡 Hint: The password is a Chinese blessing<br>
+            💡 Hint: Password is a Chinese blessing phrase<br>
             💡 提示：密码是一句中文祝福语<br>
-            🎮 Press F12 after unlocking for special features<br>
-            🎮 解锁后按F12获得特殊功能
+            🔒 Contains "学友哥" and "Vivi姐"<br>
+            🔒 包含"学友哥"和"Vivi姐"<br>
+            ⚠️ Do not use Ctrl+S or developer tools<br>
+            ⚠️ 禁止使用Ctrl+S或开发者工具<br>
+            🎵 Music will play after unlocking<br>
+            🎵 解锁后音乐将自动播放
         </div>
         <div class="error-message" id="errorMessage">
-            Incorrect password. Please try again.
+            Incorrect password. Please try again.<br>
+            密码错误，请重试
         </div>
     </div>
 
-    <!-- ==================== 【新增】三种瞳术特效 ==================== -->
+    <!-- ==================== 三种瞳术特效 ==================== -->
     <!-- 轮回眼 (左上) -->
     <div class="rinnegan-eye left-top">
         <div class="rinnegan-circle"></div>
@@ -737,9 +981,9 @@
     </div>
 
     <!-- ==================== 原有组件 ==================== -->
-    <button class="bigbang-trigger" onclick="triggerBigBang()">💥 触发宇宙大爆炸</button>
+    <button class="bigbang-trigger" onclick="triggerBigBang()">💥 Trigger Big Bang / 触发宇宙大爆炸</button>
     <div class="cycle-counter" id="cycleCounter">
-        轮回周期: <span id="currentCycle">0</span>
+        Reincarnation Cycle: <span id="currentCycle">0</span>
     </div>
 
     <!-- 宇宙背景 -->
@@ -748,8 +992,8 @@
     <!-- 音乐播放器 -->
     <div class="music-player" id="musicPlayer">
         <div class="music-header" id="dragHandle">
-            <div class="music-title">🎵 孙燕姿 - 克卜勒 (可拖拽)</div>
-            <button class="control-btn" onclick="toggleLyrics()" title="显示歌词">📝</button>
+            <div class="music-title">🎵 Stefanie Sun - Kepler (Drag to move / 可拖拽移动)</div>
+            <button class="control-btn" onclick="toggleLyrics()" title="Show Lyrics / 显示歌词">📝</button>
         </div>
         <div class="time-display">
             <span id="currentTime">0:00</span>
@@ -760,9 +1004,9 @@
             <div class="progress-handle" id="progressHandle"></div>
         </div>
         <div class="music-controls">
-            <button class="control-btn" onclick="skipBackward()" title="后退15秒">⏪</button>
-            <button class="control-btn" onclick="playPause()" id="playPauseBtn" title="播放/暂停">▶️</button>
-            <button class="control-btn" onclick="skipForward()" title="前进15秒">⏩</button>
+            <button class="control-btn" onclick="skipBackward()" title="Back 15s / 后退15秒">⏪</button>
+            <button class="control-btn" onclick="playPause()" id="playPauseBtn" title="Play/Pause / 播放/暂停">▶️</button>
+            <button class="control-btn" onclick="skipForward()" title="Forward 15s / 前进15秒">⏩</button>
         </div>
         <div class="volume-control">
             <span>🔊</span>
@@ -774,7 +1018,7 @@
     <!-- 歌词显示 -->
     <div class="lyrics-container" id="lyricsContainer">
         <button class="lyrics-close" onclick="toggleLyrics()">×</button>
-        <div class="lyrics-title">孙燕姿 - 克卜勒</div>
+        <div class="lyrics-title">Stefanie Sun - 克卜勒 (Kepler)</div>
         <div class="current-lyric" id="currentLyric">等不到你 成为我最闪亮的星星</div>
         <div class="next-lyric" id="nextLyric">我依然愿意借给你我的光</div>
     </div>
@@ -785,14 +1029,14 @@
         <div class="code-display">
             <span class="comments">/**</span><br>
             <span class="comments"> * 无限月读·轮回之爱 - Infinite Tsukuyomi of Eternal Love</span><br>
-            <span class="comments"> * 创作者: 刘康 (六道仙人转世)</span><br>
+            <span class="comments"> * 创作者: 学友哥 (六道仙人转世)</span><br>
             <span class="comments"> * 时间: 从创世之初到世界终结</span><br>
             <span class="comments"> * 描述: 跨越多元宇宙的羁绊，每27年一次的轮回重生</span><br>
             <span class="comments"> * 背景音乐: 孙燕姿《克卜勒》- 我们的唤醒之歌</span><br>
             <span class="comments"> * 特殊: 27年轮回系统，宇宙大爆炸，火影忍者元素融合</span><br>
             <span class="comments"> */</span><br>
             <br>
-            <span class="keyword">const</span> 六道仙人 = <span class="string">"刘康"</span>;<br>
+            <span class="keyword">const</span> 六道仙人 = <span class="string">"学友哥"</span>;<br>
             <span class="keyword">const</span> 辉夜姬 = <span class="string">"Vivi"</span>;<br>
             <span class="keyword">const</span> 轮回周期 = <span class="number">27</span>; <span class="comments">// 年 - 火影中的轮回周期</span><br>
             <span class="keyword">const</span> 查克拉总量 = <span class="number">999999</span>;<br>
@@ -889,27 +1133,27 @@
 
         <!-- 火影经典语录 -->
         <div class="naruto-quote">
-            "我向来都是有话直说，这就是我的忍道！"<br>
-            "孤独，不是被父母责备后难过的那种程度比得上的！"<br>
-            "因为火影——是我的梦想！"<br>
-            - 漩涡鸣人 (我们的精神写照)
+            "I never go back on my word! That's my nindo, my ninja way!"<br>
+            "That's not the kind of pain you feel when your parents scold you!"<br>
+            "Because that's my ninja way!"<br>
+            - Uzumaki Naruto (Our Spiritual Reflection)
         </div>
 
         <!-- 时间线事件 -->
         <div class="timeline-event">
-            <strong>🌌 宇宙纪元 1:</strong> 六道仙人创造忍宗，爱的查克拉初次显现
+            <strong>🌌 Universe Epoch 1:</strong> Six Paths Sage creates ninja religion, love chakra first appears
         </div>
         <div class="timeline-event">
-            <strong>🎵 特殊事件:</strong> 在KTV被孙燕姿的歌声唤醒，命运之轮开始转动
+            <strong>🎵 Special Event:</strong> Awakened by Stefanie Sun's song in KTV, wheel of fate begins to turn
         </div>
         <div class="timeline-event">
-            <strong>💫 宇宙纪元 27:</strong> 第一次轮回，辉夜姬降临，无限月读启动
+            <strong>💫 Universe Epoch 27:</strong> First reincarnation, Kaguya appears, Infinite Tsukuyomi activates
         </div>
         <div class="timeline-event">
-            <strong>🔥 宇宙纪元 54:</strong> 忍者世界形成，爱的羁绊穿越时空
+            <strong>🔥 Universe Epoch 54:</strong> Ninja world forms, bonds of love transcend time and space
         </div>
         <div class="timeline-event">
-            <strong>❤️ 当前纪元:</strong> 代码与查克拉融合，创造数字世界的永恒之爱
+            <strong>❤️ Current Epoch:</strong> Code and chakra merge, creating eternal love in the digital world
         </div>
 
         <!-- 查克拉节点 -->
@@ -923,95 +1167,397 @@
     <div class="big-bang" id="bigBang"></div>
 
     <!-- 音频元素 -->
-    <audio id="backgroundMusic">
-        <source src="music/yanzi-kepule.ogg" type="audio/ogg">
-        <source src="music/yanzi-kepule.mp3" type="audio/mp3">
+    <audio id="backgroundMusic" preload="auto">
+        <!-- 如果没有本地音频文件，可以使用在线音频 -->
+        <!-- 这里我们使用一个占位符，实际使用时请替换为真实音频URL -->
+        <source src="music/yanzi-kepule.ogg" type="audio/mp3">
         您的浏览器不支持音频播放
     </audio>
 
     <script>
-        // ==================== 密码保护系统 ====================
-        const CORRECT_PASSWORD = "祝学友哥与Vivi姐永世幸福";
-        let unlockAttempts = 0;
+        // ==================== 全局状态变量 ====================
         let contentUnlocked = false;
+        let securityLocked = false;
+        let unlockAttempts = 0;
+        let securityViolations = 0;
+        const MAX_ATTEMPTS = 5;
+        const MAX_VIOLATIONS = 3;
 
-        function checkPassword() {
-            const input = document.getElementById('passwordInput').value.trim();
-            const errorMsg = document.getElementById('errorMessage');
-
-            if (input === CORRECT_PASSWORD) {
-                unlockContent();
-            } else {
-                unlockAttempts++;
-                errorMsg.style.display = 'block';
-                errorMsg.textContent = `密码错误 (尝试次数: ${unlockAttempts})`;
-                const inputElement = document.getElementById('passwordInput');
-                inputElement.style.animation = 'shake 0.5s';
-                setTimeout(() => inputElement.style.animation = '', 500);
-                if (unlockAttempts >= 3) {
-                    errorMsg.innerHTML += `<br>💡 提示：祝福学友哥和Vivi姐的句子`;
+        // ==================== 高级安全防护系统 ====================
+        (function() {
+            'use strict';
+            
+            // 密码加密系统
+            const passwordSystem = {
+                fragments: {
+                    a: "祝学友哥",
+                    b: "与Vivi姐",
+                    c: "永世幸福"
+                },
+                encrypt: function(text) {
+                    let result = "";
+                    for (let i = 0; i < text.length; i++) {
+                        result += String.fromCharCode(text.charCodeAt(i) ^ 0x55);
+                    }
+                    return result;
+                },
+                decrypt: function(encrypted) {
+                    return this.encrypt(encrypted);
+                },
+                getRealPassword: function() {
+                    return this.fragments.a + this.fragments.b + this.fragments.c;
                 }
-            }
-        }
+            };
 
-        function checkEnter(event) {
-            if (event.key === 'Enter') checkPassword();
-        }
-
-        function unlockContent() {
-            contentUnlocked = true;
-            document.getElementById('protectedScreen').style.display = 'none';
-            showUnlockMessage();
-        }
-
-        function showUnlockMessage() {
-            setTimeout(() => {
-                const originalLog = console.log;
-                console.log = function() { return originalLog.apply(this, arguments); };
-                console.log(`%c
-                🎉 解锁成功！
-                💖 祝福学友哥与Vivi姐永世幸福
-                🌌 轮回眼、写轮眼、白眼已显现
-                🎮 按F12开启开发者模式获得特殊功能
-                `, 'color: #ff4757; font-size: 16px; font-weight: bold;');
-                setTimeout(() => { console.log = function() {}; }, 5000);
-            }, 1000);
-        }
-
-        // ==================== F12保护机制 ====================
-        let devtoolsOpen = false;
-        setInterval(function() {
-            const startTime = performance.now();
-            debugger;
-            const endTime = performance.now();
-            if (endTime - startTime > 100) {
-                if (!devtoolsOpen && contentUnlocked) {
-                    devtoolsOpen = true;
-                    onDevToolsOpen();
+            // 存储加密密码
+            const ENCRYPTED_PASSWORD = passwordSystem.encrypt(passwordSystem.getRealPassword());
+            
+            // 键盘快捷键防护
+            const keyProtection = {
+                blockedCombos: [
+                    { key: 'F12', description: 'Developer Tools (F12)' },
+                    { ctrl: true, key: 's', description: 'Save Page (Ctrl+S)' },
+                    { ctrl: true, key: 'u', description: 'View Source (Ctrl+U)' },
+                    { ctrl: true, shift: true, key: 'i', description: 'Developer Tools (Ctrl+Shift+I)' },
+                    { ctrl: true, shift: true, key: 'j', description: 'Developer Console (Ctrl+Shift+J)' },
+                    { ctrl: true, shift: true, key: 'c', description: 'Inspect Element (Ctrl+Shift+C)' },
+                    { ctrl: true, shift: true, key: 'k', description: 'Developer Tools (Ctrl+Shift+K)' }
+                ],
+                
+                init: function() {
+                    // 监听键盘事件，阻止特定的快捷键
+                    document.addEventListener('keydown', (e) => {
+                        // 检查是否为阻止的组合键
+                        for (const combo of this.blockedCombos) {
+                            if (this.matchCombo(e, combo)) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                this.onBlockedCombo(combo);
+                                return false;
+                            }
+                        }
+                        
+                        // 允许所有其他按键（包括中文输入）
+                        return true;
+                    }, true);
+                    
+                    // 防止右键菜单（但允许在密码框中使用）
+                    document.addEventListener('contextmenu', (e) => {
+                        // 如果是在密码输入框中，允许右键菜单
+                        if (e.target.id === 'passwordInput') {
+                            return true;
+                        }
+                        
+                        // 其他情况下阻止右键菜单
+                        e.preventDefault();
+                        return false;
+                    }, true);
+                },
+                
+                matchCombo: function(e, combo) {
+                    // 检查F12
+                    if (combo.key === 'F12' && e.key === 'F12') return true;
+                    
+                    // 检查其他组合键
+                    if (combo.ctrl && !e.ctrlKey) return false;
+                    if (combo.shift && !e.shiftKey) return false;
+                    if (combo.alt && !e.altKey) return false;
+                    if (combo.key && e.key.toLowerCase() !== combo.key.toLowerCase()) return false;
+                    return true;
+                },
+                
+                onBlockedCombo: function(combo) {
+                    console.warn(`⚠️ Security blocked: ${combo.description}`);
+                    
+                    securityViolations++;
+                    
+                    // 显示警告
+                    const errorDiv = document.getElementById('errorMessage');
+                    if (errorDiv) {
+                        errorDiv.textContent = `Security Warning: ${combo.description} is prohibited! (Violations: ${securityViolations}/${MAX_VIOLATIONS})`;
+                        errorDiv.style.display = 'block';
+                        
+                        // 3秒后隐藏警告
+                        setTimeout(() => {
+                            errorDiv.style.display = 'none';
+                        }, 3000);
+                    }
+                    
+                    // 显示键盘监听器
+                    const watcher = document.getElementById('keyboardWatcher');
+                    if (watcher) {
+                        watcher.textContent = `Blocked: ${combo.description}`;
+                        watcher.style.display = 'block';
+                        setTimeout(() => watcher.style.display = 'none', 2000);
+                    }
+                    
+                    // 达到最大违规次数时锁定安全
+                    if (securityViolations >= MAX_VIOLATIONS) {
+                        this.lockSecurity();
+                    }
+                },
+                
+                lockSecurity: function() {
+                    securityLocked = true;
+                    const screen = document.getElementById('protectedScreen');
+                    if (screen) {
+                        screen.innerHTML = `
+                            <div class="title">🔒 Security Locked</div>
+                            <div style="margin: 2rem 0; padding: 1.5rem; background: rgba(255, 71, 87, 0.1); border-radius: 10px;">
+                                <p>Multiple security violations detected, page has been locked.</p>
+                                <p>Please refresh the page and try again.</p>
+                                <p style="color: #6c757d; font-size: 0.9rem; margin-top: 1rem;">
+                                    Lock reason: Multiple attempts to use prohibited shortcuts
+                                </p>
+                            </div>
+                        `;
+                    }
                 }
-            } else {
-                devtoolsOpen = false;
+            };
+
+            // 防调试检测系统
+            const antiDebug = {
+                isDebugging: false,
+                lastCheck: Date.now(),
+                checkInterval: null,
+                
+                // 检测开发者工具
+                detectDevTools: function() {
+                    const threshold = 100;
+                    const start = performance.now();
+                    debugger;
+                    const end = performance.now();
+                    return end - start > threshold;
+                },
+                
+                // 启动保护
+                startProtection: function() {
+                    this.checkInterval = setInterval(() => {
+                        if (this.detectDevTools()) {
+                            this.onDevToolsDetected();
+                        }
+                    }, 1000);
+                },
+                
+                // 开发者工具被检测到
+                onDevToolsDetected: function() {
+                    if (!this.isDebugging) {
+                        this.isDebugging = true;
+                        const antiInspect = document.getElementById('antiInspect');
+                        if (antiInspect) {
+                            antiInspect.style.display = 'flex';
+                        }
+                    }
+                },
+                
+                // 停止保护
+                stopProtection: function() {
+                    if (this.checkInterval) {
+                        clearInterval(this.checkInterval);
+                    }
+                }
+            };
+
+            // 防保存机制
+            const saveProtection = {
+                init: function() {
+                    // 防止右键另存为
+                    document.addEventListener('contextmenu', (e) => {
+                        if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
+                            e.preventDefault();
+                            return false;
+                        }
+                    });
+                    
+                    // 防止拖拽保存
+                    document.addEventListener('dragstart', (e) => {
+                        if (e.target.tagName === 'IMG') {
+                            e.preventDefault();
+                            return false;
+                        }
+                    });
+                    
+                    // 防止打印
+                    window.addEventListener('beforeprint', (e) => {
+                        e.preventDefault();
+                        document.body.innerHTML = "<h1 style='text-align:center;color:#ff4757;margin-top:50px;'>Printing is disabled</h1>";
+                        return false;
+                    });
+                }
+            };
+
+            // 密码检查函数
+            window.checkPassword = function() {
+                if (securityLocked) {
+                    alert('Page has been security locked, please refresh and try again.');
+                    return;
+                }
+                
+                const input = document.getElementById('passwordInput').value.trim();
+                const errorMsg = document.getElementById('errorMessage');
+                const submitBtn = document.getElementById('submitBtn');
+                
+                // 解密输入的密码进行比较
+                const encryptedInput = passwordSystem.encrypt(input);
+                
+                if (encryptedInput === ENCRYPTED_PASSWORD) {
+                    unlockContent();
+                } else {
+                    unlockAttempts++;
+                    
+                    errorMsg.style.display = 'block';
+                    errorMsg.textContent = `Incorrect password (Attempts: ${unlockAttempts}/${MAX_ATTEMPTS})`;
+                    
+                    const inputElement = document.getElementById('passwordInput');
+                    inputElement.style.animation = 'shake 0.5s';
+                    setTimeout(() => inputElement.style.animation = '', 500);
+                    
+                    inputElement.value = '';
+                    
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = 'Please wait...';
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Unlock Content / 解锁内容';
+                    }, 1000);
+                    
+                    if (unlockAttempts >= MAX_ATTEMPTS) {
+                        lockPermanently();
+                    }
+                    
+                    // 提供不同级别的提示
+                    if (unlockAttempts === 2) {
+                        errorMsg.innerHTML += `<br>💡 Hint: Contains "学友哥" and "Vivi姐"`;
+                    } else if (unlockAttempts === 3) {
+                        errorMsg.innerHTML += `<br>💡 Hint: Complete phrase is "祝学友哥与Vivi姐永世幸福"`;
+                    }
+                }
+            };
+            
+            // 锁定页面
+            function lockPermanently() {
+                securityLocked = true;
+                document.body.innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: #ff4757; text-align: center; padding: 2rem;">
+                        <div>
+                            <h1 style="font-size: 48px; margin-bottom: 2rem;">🔒 Permanently Locked</h1>
+                            <p style="font-size: 18px; margin-bottom: 1rem;">Multiple password attempts failed</p>
+                            <p style="color: #6c757d;">Page has been permanently locked, please revisit</p>
+                        </div>
+                    </div>
+                `;
             }
-        }, 1000);
-
-        function onDevToolsOpen() {
-            if (!contentUnlocked) return;
-            const originalLog = console.log;
-            console.log = function() { return originalLog.apply(this, arguments); };
-            console.log(`%c
-            🔓 开发者模式已激活！
-            👁️ 三种瞳术之力已加强
-            💫 特殊功能已解锁
-            `, 'color: #2ed573; font-size: 14px; font-weight: bold;');
-            setTimeout(() => { console.log = function() {}; }, 3000);
-        }
-
-        // 基础保护措施
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('selectstart', e => e.preventDefault());
-        console.log = function() {};
-        console.warn = function() {};
-        console.error = function() {};
+            
+            // 解锁内容 - 修复版
+            function unlockContent() {
+                contentUnlocked = true;
+                document.getElementById('protectedScreen').style.display = 'none';
+                
+                // 停止防调试保护
+                antiDebug.stopProtection();
+                
+                // 显示所有隐藏的内容
+                document.querySelectorAll('.container, .bigbang-trigger, .cycle-counter, .music-player, .chakra-point, .rinnegan-eye, .sharingan-eye, .byakugan-eye').forEach(el => {
+                    el.style.display = 'block';
+                });
+                
+                // 显示成功消息
+                showUnlockMessage();
+                
+                // 自动播放音乐（修复音乐播放问题）
+                setTimeout(() => {
+                    try {
+                        const music = document.getElementById('backgroundMusic');
+                        if (music) {
+                            music.play().then(() => {
+                                console.log("🎵 Music auto-playing after unlock");
+                                document.getElementById('playPauseBtn').innerHTML = '⏸️';
+                                document.getElementById('playPauseBtn').title = 'Pause / 暂停';
+                            }).catch(e => {
+                                console.log("⚠️ Auto-play prevented, user interaction required");
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Music play error:", e);
+                    }
+                }, 500);
+            }
+            
+            // 显示解锁消息
+            function showUnlockMessage() {
+                const unlockDiv = document.createElement('div');
+                unlockDiv.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0, 0, 0, 0.95);
+                    padding: 3rem;
+                    border-radius: 20px;
+                    border: 3px solid #2ed573;
+                    text-align: center;
+                    z-index: 10000;
+                    box-shadow: 0 0 50px rgba(46, 213, 115, 0.5);
+                    animation: unlockFadeIn 0.5s ease;
+                `;
+                unlockDiv.innerHTML = `
+                    <div style="font-size: 36px; margin-bottom: 1rem;">🎉 Unlock Successful!</div>
+                    <div style="font-size: 20px; color: #2ed573; margin-bottom: 2rem;">💖 Wish Xueyou Ge and Vivi Jie eternal happiness</div>
+                    <div style="color: #6c757d; margin-bottom: 1rem;">🌌 Reincarnation Love System Activated</div>
+                    <div style="color: #ffa502;">👁️ Three Dojutsu Powers Manifested</div>
+                `;
+                document.body.appendChild(unlockDiv);
+                
+                setTimeout(() => {
+                    unlockDiv.style.opacity = '0';
+                    unlockDiv.style.transform = 'translate(-50%, -50%) scale(0.9)';
+                    setTimeout(() => unlockDiv.remove(), 500);
+                }, 3000);
+            }
+            
+            // 检查回车键
+            window.checkEnter = function(event) {
+                if (event.key === 'Enter') {
+                    checkPassword();
+                }
+            };
+            
+            // 初始化安全系统
+            function initSecurity() {
+                // 启动键盘保护
+                keyProtection.init();
+                
+                // 启动防保存
+                saveProtection.init();
+                
+                // 启动防调试保护
+                antiDebug.startProtection();
+                
+                // 隐藏源代码中的密码信息
+                console.clear();
+                
+                // 添加虚假控制台信息
+                setTimeout(() => {
+                    console.log("%c⚠️  Warning: This page is security protected", "color: #ff4757; font-size: 16px; font-weight: bold;");
+                    console.log("%c🚫  Do not attempt to crack or view source code", "color: #ff6b6b; font-size: 14px;");
+                    console.log("%c🔒  All content is encrypted and protected", "color: #6c757d; font-size: 12px;");
+                }, 1000);
+            }
+            
+            // 页面加载完成后初始化
+            document.addEventListener('DOMContentLoaded', initSecurity);
+            
+            // 防止通过iframe嵌入
+            if (window.self !== window.top) {
+                window.top.location = window.self.location;
+            }
+            
+            // 防止后退按钮
+            history.pushState(null, null, location.href);
+            window.onpopstate = function(event) {
+                history.go(1);
+            };
+        })();
 
         // ==================== 轮回系统核心 ====================
         class 轮回系统 {
@@ -1026,9 +1572,9 @@
                 this.当前纪元++;
                 触发大爆炸视觉效果();
                 更新轮回显示();
-                增强瞳术特效(); // 【新增】重启时增强眼睛特效
-                console.log(`💥 第${this.轮回次数}次宇宙大爆炸发生！`);
-                console.log(`🔄 进入第${this.当前纪元}纪元`);
+                增强瞳术特效();
+                console.log(`💥 Universe Big Bang #${this.轮回次数} occurs!`);
+                console.log(`🔄 Entering Epoch ${this.当前纪元}`);
                 return `第${this.轮回次数}次轮回开始 - 纪元${this.当前纪元}`;
             }
             检查自然轮回() {
@@ -1038,16 +1584,16 @@
         }
         const 轮回 = new 轮回系统();
 
-        // ==================== 【新增】瞳术增强函数 ====================
+        // ==================== 瞳术增强函数 ====================
         function 增强瞳术特效() {
             const eyes = document.querySelectorAll('.rinnegan-eye, .sharingan-eye, .byakugan-eye');
             eyes.forEach(eye => {
-                eye.style.opacity = '0.3'; // 暂时增强不透明度
-                eye.style.filter = 'drop-shadow(0 0 10px currentColor)';
+                eye.style.opacity = '0.6';
+                eye.style.filter = 'drop-shadow(0 0 30px currentColor)';
                 setTimeout(() => {
-                    eye.style.opacity = '';
-                    eye.style.filter = '';
-                }, 2000);
+                    eye.style.opacity = '0.35';
+                    eye.style.filter = 'drop-shadow(0 0 15px currentColor)';
+                }, 3000);
             });
         }
 
@@ -1065,12 +1611,13 @@
 
         function createStars() {
             const universe = document.getElementById('universe');
-            for (let i = 0; i < 200; i++) {
+            universe.innerHTML = '';
+            for (let i = 0; i < 250; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 star.style.left = Math.random() * 100 + '%';
                 star.style.top = Math.random() * 100 + '%';
-                star.style.width = Math.random() * 3 + 'px';
+                star.style.width = Math.random() * 4 + 'px';
                 star.style.height = star.style.width;
                 star.style.animationDelay = Math.random() * 3 + 's';
                 universe.appendChild(star);
@@ -1096,7 +1643,10 @@
         }
 
         function triggerBigBang() {
-            if (!contentUnlocked) return;
+            if (!contentUnlocked) {
+                alert('Please unlock the content first! / 请先解锁内容！');
+                return;
+            }
             轮回.宇宙重启();
         }
 
@@ -1149,34 +1699,49 @@
         let lyricsVisible = false;
 
         function playPause() {
+            if (!contentUnlocked) {
+                alert('Please unlock the content first! / 请先解锁内容！');
+                return;
+            }
+            
             if (music.paused) {
                 music.play().then(() => {
                     playPauseBtn.innerHTML = '⏸️';
-                    playPauseBtn.title = '暂停';
-                }).catch(e => console.log('播放失败，需要用户交互'));
+                    playPauseBtn.title = 'Pause / 暂停';
+                }).catch(e => {
+                    console.log('Playback failed, user interaction may be required');
+                    alert('Click the play button again to start music / 请再次点击播放按钮开始音乐');
+                });
             } else {
                 music.pause();
                 playPauseBtn.innerHTML = '▶️';
-                playPauseBtn.title = '播放';
+                playPauseBtn.title = 'Play / 播放';
             }
         }
 
         function skipForward() {
+            if (!contentUnlocked) return;
             music.currentTime = Math.min(music.duration, music.currentTime + 15);
             updateProgress();
         }
 
         function skipBackward() {
+            if (!contentUnlocked) return;
             music.currentTime = Math.max(0, music.currentTime - 15);
             updateProgress();
         }
 
         function toggleLyrics() {
+            if (!contentUnlocked) {
+                alert('Please unlock the content first! / 请先解锁内容！');
+                return;
+            }
             lyricsVisible = !lyricsVisible;
             lyricsContainer.classList.toggle('show', lyricsVisible);
         }
 
         function updateLyrics() {
+            if (!contentUnlocked) return;
             const currentTime = music.currentTime;
             let newIndex = -1;
             for (let i = lyrics.length - 1; i >= 0; i--) {
@@ -1197,14 +1762,15 @@
                         currentLyric.style.color = '#2ed573';
                     }, 300);
                 } else {
-                    currentLyric.textContent = '音乐即将开始...';
+                    currentLyric.textContent = 'Music starting soon...';
                     nextLyric.textContent = lyrics[0].text;
                 }
             }
         }
 
         function updateProgress() {
-            if (music.duration) {
+            if (!contentUnlocked) return;
+            if (music.duration && !isNaN(music.duration)) {
                 const percent = (music.currentTime / music.duration) * 100;
                 progressBar.style.width = percent + '%';
                 progressHandle.style.left = percent + '%';
@@ -1215,6 +1781,7 @@
         }
 
         function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
@@ -1222,6 +1789,7 @@
 
         function setupProgressBar() {
             progressContainer.addEventListener('click', function(e) {
+                if (!contentUnlocked) return;
                 const rect = this.getBoundingClientRect();
                 const percent = (e.clientX - rect.left) / rect.width;
                 music.currentTime = percent * music.duration;
@@ -1230,6 +1798,7 @@
         }
 
         volumeControl.addEventListener('input', function() {
+            if (!contentUnlocked) return;
             music.volume = this.value;
             volumeValue.textContent = Math.round(this.value * 100) + '%';
         });
@@ -1237,52 +1806,90 @@
         // ==================== 播放器拖拽功能 ====================
         let isDragging = false;
         let dragOffset = { x: 0, y: 0 };
+        let startPos = { x: 0, y: 0 };
 
         function startDrag(e) {
-            if (e.button !== 0) return;
+            if (!contentUnlocked) return;
+            
+            if (e.type === 'mousedown' && e.button !== 0) return;
+            
             isDragging = true;
             musicPlayer.classList.add('dragging');
+            
             const rect = musicPlayer.getBoundingClientRect();
-            dragOffset.x = e.clientX - rect.left;
-            dragOffset.y = e.clientY - rect.top;
+            if (e.type === 'mousedown') {
+                dragOffset.x = e.clientX - rect.left;
+                dragOffset.y = e.clientY - rect.top;
+                startPos.x = e.clientX;
+                startPos.y = e.clientY;
+            } else if (e.type === 'touchstart') {
+                const touch = e.touches[0];
+                dragOffset.x = touch.clientX - rect.left;
+                dragOffset.y = touch.clientY - rect.top;
+                startPos.x = touch.clientX;
+                startPos.y = touch.clientY;
+            }
+            
             e.preventDefault();
         }
 
         function onDrag(e) {
-            if (!isDragging) return;
-            let newX = e.clientX - dragOffset.x;
-            let newY = e.clientY - dragOffset.y;
+            if (!isDragging || !contentUnlocked) return;
+            
+            let clientX, clientY;
+            if (e.type === 'mousemove') {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            } else if (e.type === 'touchmove') {
+                const touch = e.touches[0];
+                clientX = touch.clientX;
+                clientY = touch.clientY;
+            }
+            
+            let newX = clientX - dragOffset.x;
+            let newY = clientY - dragOffset.y;
+            
             const maxX = window.innerWidth - musicPlayer.offsetWidth;
             const maxY = window.innerHeight - musicPlayer.offsetHeight;
+            
             newX = Math.max(0, Math.min(newX, maxX));
             newY = Math.max(0, Math.min(newY, maxY));
+            
             musicPlayer.style.left = newX + 'px';
             musicPlayer.style.top = newY + 'px';
             musicPlayer.style.transform = 'none';
+            
+            e.preventDefault();
         }
 
-        function endDrag() {
+        function endDrag(e) {
+            if (!isDragging) return;
+            
             isDragging = false;
             musicPlayer.classList.remove('dragging');
+            
+            const endPos = e.type === 'mouseup' ? 
+                { x: e.clientX, y: e.clientY } : 
+                { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+            
+            const distance = Math.sqrt(
+                Math.pow(endPos.x - startPos.x, 2) + 
+                Math.pow(endPos.y - startPos.y, 2)
+            );
+            
+            if (distance < 5) {
+                musicPlayer.style.transform = 'translateX(-50%)';
+            }
         }
 
+        // 鼠标事件
         dragHandle.addEventListener('mousedown', startDrag);
         document.addEventListener('mousemove', onDrag);
         document.addEventListener('mouseup', endDrag);
 
-        // 触摸设备支持
-        dragHandle.addEventListener('touchstart', function(e) {
-            const touch = e.touches[0];
-            const mouseEvent = new MouseEvent('mousedown', { clientX: touch.clientX, clientY: touch.clientY });
-            startDrag(mouseEvent);
-        });
-        document.addEventListener('touchmove', function(e) {
-            if (!isDragging) return;
-            const touch = e.touches[0];
-            const mouseEvent = new MouseEvent('mousemove', { clientX: touch.clientX, clientY: touch.clientY });
-            onDrag(mouseEvent);
-            e.preventDefault();
-        });
+        // 触摸事件
+        dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+        document.addEventListener('touchmove', onDrag, { passive: false });
         document.addEventListener('touchend', endDrag);
 
         // ==================== 初始化设置 ====================
@@ -1292,46 +1899,35 @@
             setupProgressBar();
 
             music.addEventListener('timeupdate', updateProgress);
+            music.addEventListener('loadedmetadata', function() {
+                durationEl.textContent = formatTime(music.duration);
+            });
             music.addEventListener('ended', function() {
+                if (!contentUnlocked) return;
                 playPauseBtn.innerHTML = '▶️';
-                playPauseBtn.title = '播放';
+                playPauseBtn.title = 'Play / 播放';
             });
 
             music.volume = volumeControl.value;
 
-            document.addEventListener('click', function initAudio() {
-                document.removeEventListener('click', initAudio);
-                music.volume = 0;
-                music.play().then(() => {
-                    music.pause();
-                    music.volume = volumeControl.value;
-                });
-            });
-
+            // 演示模式自动循环
             setInterval(() => {
-                if (轮回.检查自然轮回()) {
-                    console.log("🎂 生日快乐！自动触发年度轮回");
-                    轮回.宇宙重启();
-                }
-            }, 5 * 60 * 1000);
-
-            setInterval(() => {
-                if (Math.random() < 0.1 && contentUnlocked) {
-                    console.log("🔮 演示模式：触发轮回");
+                if (contentUnlocked && !securityLocked && Math.random() < 0.1) {
+                    console.log("🔮 Demo mode: Triggering reincarnation");
                     轮回.宇宙重启();
                 }
             }, 27000);
 
             setInterval(() => {
-                if (Math.random() < 0.01 && contentUnlocked) {
+                if (contentUnlocked && !securityLocked && Math.random() < 0.01) {
                     触发查克拉波动();
                 }
             }, 1000);
 
             console.log(`%c
-             🌀 轮回之爱系统已启动
-             👁️ 轮回眼、写轮眼、白眼准备就绪
-             🔒 请输入密码解锁完整内容
+             🌀 Reincarnation Love System Activated
+             👁️ Rinnegan, Sharingan, Byakugan Ready
+             🔒 Please enter password to unlock content
             `, 'color: #ff4757; font-size: 14px; font-weight: bold;');
         });
     </script>
