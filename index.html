@@ -2,82 +2,76 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>轮回之爱 - Eternal Love</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>轮回之爱 · 永恒羁绊</title>
     <style>
-        /* ==================== 全局样式 ==================== */
+        /* ========== 全局设计变量 ========== */
+        :root {
+            --primary: #ff4757;
+            --secondary: #8a2be2;
+            --accent: #2ed573;
+            --highlight: #ffa502;
+            --dark: #0a0a0a;
+            --glow-primary: 0 0 20px rgba(255, 71, 87, 0.7);
+            --glow-secondary: 0 0 20px rgba(138, 43, 226, 0.7);
+            --glow-accent: 0 0 20px rgba(46, 213, 115, 0.7);
+            --font-mono: 'Fira Code', 'Courier New', monospace;
+            --font-cn: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
         }
 
         body {
             background: #000;
             color: #fff;
-            font-family: 'Courier New', monospace;
+            font-family: var(--font-cn);
             overflow-x: hidden;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+            min-height: 100vh;
+            position: relative;
             cursor: default;
         }
 
-        img {
-            -webkit-user-drag: none;
-            -khtml-user-drag: none;
-            -moz-user-drag: none;
-            -o-user-drag: none;
-            user-drag: none;
-        }
-
-        /* ==================== 安全防护层样式 ==================== */
+        /* ========== 安全防护层 ========== */
         .anti-inspect {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             background: #000;
             z-index: 99999;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
-            color: #ff4757;
+            flex-direction: column;
+            color: var(--primary);
             font-size: 24px;
             text-align: center;
-            display: none;
-            flex-direction: column;
             gap: 20px;
         }
 
         .anti-inspect .warning-icon {
-            font-size: 48px;
-            animation: pulse 1s infinite;
+            font-size: 4rem;
+            animation: pulse-glow 1.5s infinite alternate;
         }
 
         .anti-inspect .warning-text {
             max-width: 600px;
-            padding: 20px;
+            padding: 2rem;
             background: rgba(255, 71, 87, 0.1);
-            border-radius: 10px;
-            border: 2px solid #ff4757;
+            border-radius: 20px;
+            border: 2px solid var(--primary);
+            backdrop-filter: blur(10px);
         }
 
         .obfuscation-layer {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                45deg,
-                rgba(255, 71, 87, 0.05),
-                rgba(255, 71, 87, 0.05) 10px,
-                rgba(138, 43, 226, 0.05) 10px,
-                rgba(138, 43, 226, 0.05) 20px
-            );
+            inset: 0;
+            background: repeating-linear-gradient(45deg,
+                rgba(255, 71, 87, 0.05) 0px, rgba(255, 71, 87, 0.05) 10px,
+                rgba(138, 43, 226, 0.05) 10px, rgba(138, 43, 226, 0.05) 20px);
             z-index: -1;
             pointer-events: none;
         }
@@ -86,265 +80,203 @@
             position: fixed;
             bottom: 10px;
             right: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 5px 10px;
-            border-radius: 5px;
-            border: 1px solid #ff4757;
+            background: rgba(0,0,0,0.9);
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid var(--primary);
             font-size: 12px;
-            color: #6c757d;
+            color: #aaa;
             z-index: 1001;
             display: none;
+            backdrop-filter: blur(5px);
         }
 
-        .anti-debug {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* ==================== 密码保护界面样式 ==================== */
+        /* ========== 密码保护界面 ========== */
         .protected-screen {
-            text-align: center;
-            padding: 2rem;
-            max-width: 500px;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            width: min(90%, 500px);
+            padding: 3rem 2rem;
+            background: rgba(10, 10, 10, 0.95);
+            border: 2px solid var(--primary);
+            border-radius: 30px;
+            box-shadow: 0 0 80px rgba(255, 71, 87, 0.4), inset 0 0 30px rgba(138, 43, 226, 0.2);
+            backdrop-filter: blur(15px);
+            text-align: center;
             z-index: 10000;
-            background: rgba(0, 0, 0, 0.95);
-            border-radius: 15px;
-            border: 2px solid #ff4757;
-            box-shadow: 0 0 50px rgba(255, 71, 87, 0.3);
-            backdrop-filter: blur(10px);
+            animation: float 6s infinite ease-in-out;
         }
 
-        .title {
-            font-size: 2rem;
+        @keyframes float {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+            50% { transform: translate(-50%, -50%) translateY(-10px); }
+        }
+
+        .protected-screen .title {
+            font-size: clamp(2rem, 8vw, 3rem);
+            color: var(--primary);
+            font-weight: 800;
+            text-shadow: var(--glow-primary), 0 0 40px var(--secondary);
             margin-bottom: 2rem;
-            color: #ff4757;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
-        }
-
-        .password-form {
-            margin: 2rem 0;
+            letter-spacing: 4px;
         }
 
         .password-input {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #ff4757;
-            border-radius: 10px;
-            color: white;
-            padding: 12px 20px;
-            font-size: 1.1rem;
             width: 100%;
-            margin-bottom: 1rem;
+            padding: 1rem 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid var(--primary);
+            border-radius: 50px;
+            color: #fff;
+            font-size: 1.2rem;
             text-align: center;
             outline: none;
-            transition: all 0.3s ease;
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
+            transition: 0.3s;
+            margin-bottom: 1.5rem;
         }
 
         .password-input:focus {
-            box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
-            border-color: #8a2be2;
+            border-color: var(--secondary);
+            box-shadow: 0 0 30px var(--secondary);
         }
 
         .submit-btn {
-            background: linear-gradient(45deg, #ff4757, #8a2be2);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            cursor: pointer;
             width: 100%;
-            transition: all 0.3s ease;
+            padding: 1rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
             position: relative;
             overflow: hidden;
         }
 
         .submit-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+            box-shadow: 0 0 40px var(--primary);
         }
 
-        .submit-btn:active {
-            transform: scale(0.98);
+        .submit-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3), transparent 70%);
+            opacity: 0;
+            transition: 0.5s;
+        }
+
+        .submit-btn:hover::after {
+            opacity: 1;
         }
 
         .hint {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-top: 1rem;
-            line-height: 1.5;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px;
-            border-radius: 8px;
-            border-left: 3px solid #8a2be2;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            border-left: 4px solid var(--secondary);
+            color: #ccc;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            text-align: left;
         }
 
         .error-message {
-            color: #ff6b6b;
+            color: var(--primary);
             margin-top: 1rem;
-            padding: 10px;
-            background: rgba(255, 107, 107, 0.1);
-            border-radius: 8px;
-            border: 1px solid #ff6b6b;
+            padding: 0.8rem;
+            background: rgba(255, 71, 87, 0.15);
+            border-radius: 30px;
+            border: 1px solid var(--primary);
             display: none;
-            animation: shake 0.5s ease-in-out;
+            animation: shake 0.4s;
         }
 
-        /* ==================== 宇宙背景样式 ==================== */
-        .universe {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-        }
-
-        .star {
-            position: absolute;
-            background: #fff;
-            border-radius: 50%;
-            animation: twinkle 3s infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
-        }
-
-        /* ==================== 主容器样式 ==================== */
+        /* ========== 主容器 ========== */
         .container {
             max-width: 1200px;
-            margin: 50px auto 180px auto;
+            margin: 50px auto 180px;
             padding: 2rem;
             position: relative;
-            z-index: 1;
+            z-index: 2;
             display: none;
         }
 
-        /* ==================== 代码显示区域样式 ==================== */
+        /* ========== 代码展示区（增强） ========== */
         .code-display {
             background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #ff4757;
-            border-radius: 15px;
+            border: 2px solid var(--primary);
+            border-radius: 30px;
             padding: 2rem;
-            margin: 2rem 0;
-            position: relative;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 50px rgba(255, 71, 87, 0.3), inset 0 0 20px rgba(138, 43, 226, 0.2);
             max-height: 60vh;
             overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 1rem;
             scrollbar-width: thin;
-            scrollbar-color: #ff4757 rgba(255, 255, 255, 0.1);
+            scrollbar-color: var(--primary) rgba(255,255,255,0.1);
         }
 
-        .code-display::-webkit-scrollbar {
-            width: 8px;
-        }
-        .code-display::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-        }
-        .code-display::-webkit-scrollbar-thumb {
-            background: #ff4757;
-            border-radius: 4px;
-        }
-        .code-display::-webkit-scrollbar-thumb:hover {
-            background: #8a2be2;
-        }
+        .code-display::-webkit-scrollbar { width: 8px; }
+        .code-display::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .code-display::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
 
-        /* 代码语法高亮 */
-        .keyword { color: #ff4757; font-weight: bold; }
-        .comments { color: #6c757d; font-style: italic; }
-        .string { color: #2ed573; }
-        .function { color: #3742fa; }
-        .number { color: #ffa502; }
-        .space { margin-left: 1rem; }
+        /* 语法高亮 */
+        .code-keyword { color: var(--primary); font-weight: bold; }
+        .code-comment { color: #6c757d; font-style: italic; }
+        .code-string { color: var(--accent); }
+        .code-function { color: #1e90ff; }
+        .code-number { color: var(--highlight); }
+        .code-indent { margin-left: 2rem; }
 
-        /* ==================== 增强三种瞳术特效样式 ==================== */
-        .rinnegan-eye {
+        /* ========== 火影瞳术特效（3D增强） ========== */
+        .eye-container {
             position: fixed;
-            width: 220px; /* 增大尺寸 */
+            width: 220px;
             height: 220px;
-            opacity: 0.35; /* 增加不透明度 */
-            z-index: -1;
+            opacity: 0.4;
+            z-index: 1;
             pointer-events: none;
-            display: none;
-            filter: drop-shadow(0 0 15px #8a2be2);
-            animation: eyeGlow 4s infinite alternate;
+            filter: drop-shadow(0 0 20px currentColor);
+            animation: eye-float 6s infinite alternate;
         }
 
-        .rinnegan-eye.left-top {
-            top: 15%;
-            left: 10%;
+        .eye-container.left-top { top: 10%; left: 5%; }
+        .eye-container.right-top { top: 15%; right: 5%; }
+        .eye-container.bottom-center { bottom: 15%; left: 50%; transform: translateX(-50%); }
+
+        @keyframes eye-float {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-20px) rotate(5deg); }
         }
 
+        /* 轮回眼 */
         .rinnegan-circle {
             position: absolute;
-            border: 3px solid #8a2be2;
-            border-radius: 50%;
             top: 50%;
             left: 50%;
+            border: 3px solid var(--secondary);
+            border-radius: 50%;
             transform: translate(-50%, -50%);
-            animation: rinneganRotate 15s linear infinite;
-            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+            box-shadow: 0 0 30px var(--secondary);
+            animation: rotate 20s linear infinite;
         }
-        .rinnegan-circle:nth-child(1) { 
-            width: 40px; height: 40px; 
-            animation-delay: 0s; 
-            border-color: #ff4757;
-        }
-        .rinnegan-circle:nth-child(2) { 
-            width: 80px; height: 80px; 
-            animation-delay: -3s; 
-            animation-duration: 12s; 
-            border-color: #2ed573;
-        }
-        .rinnegan-circle:nth-child(3) { 
-            width: 120px; height: 120px; 
-            animation-delay: -6s; 
-            animation-duration: 18s; 
-            border-color: #ffa502;
-        }
-        .rinnegan-circle:nth-child(4) { 
-            width: 160px; height: 160px; 
-            animation-delay: -9s; 
-            animation-duration: 24s; 
-            border-color: #3742fa;
-        }
+        .rinnegan-circle:nth-child(1) { width: 40px; height: 40px; border-color: var(--primary); }
+        .rinnegan-circle:nth-child(2) { width: 80px; height: 80px; border-color: var(--accent); animation-duration: 15s; }
+        .rinnegan-circle:nth-child(3) { width: 120px; height: 120px; border-color: var(--highlight); animation-duration: 25s; }
+        .rinnegan-circle:nth-child(4) { width: 160px; height: 160px; border-color: #1e90ff; animation-duration: 30s; }
 
-        @keyframes rinneganRotate {
-            from { transform: translate(-50%, -50%) rotate(0deg); }
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        .sharingan-eye {
-            position: fixed;
-            width: 180px; /* 增大尺寸 */
-            height: 180px;
-            opacity: 0.4; /* 增加不透明度 */
-            z-index: -1;
-            pointer-events: none;
-            display: none;
-            filter: drop-shadow(0 0 20px #ff0000);
-            animation: sharinganPulse 2s infinite alternate;
-        }
-
-        .sharingan-eye.right-top {
-            top: 20%;
-            right: 8%;
-        }
-
+        /* 写轮眼 */
         .sharingan-inner {
             position: absolute;
             width: 100%;
@@ -352,65 +284,25 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            animation: sharinganSpin 8s linear infinite;
+            animation: rotate 8s linear infinite;
         }
         .tomaloe {
             position: absolute;
-            width: 25px; /* 增大尺寸 */
-            height: 25px;
+            width: 30px;
+            height: 30px;
             background: #ff0000;
             border-radius: 50%;
             top: 50%;
             left: 50%;
             transform-origin: 0 0;
-            box-shadow: 0 0 15px #ff0000;
-            animation: tomaloeGlow 1.5s infinite alternate;
+            box-shadow: 0 0 20px #ff0000;
+            animation: pulse-glow 1s infinite alternate;
         }
-        .tomaloe:nth-child(1) { 
-            transform: translate(-50%, -50%) rotate(0deg) translateX(55px); 
-            animation-delay: 0s;
-        }
-        .tomaloe:nth-child(2) { 
-            transform: translate(-50%, -50%) rotate(120deg) translateX(55px); 
-            animation-delay: 0.5s;
-        }
-        .tomaloe:nth-child(3) { 
-            transform: translate(-50%, -50%) rotate(240deg) translateX(55px); 
-            animation-delay: 1s;
-        }
+        .tomaloe:nth-child(1) { transform: translate(-50%, -50%) rotate(0deg) translateX(70px); }
+        .tomaloe:nth-child(2) { transform: translate(-50%, -50%) rotate(120deg) translateX(70px); }
+        .tomaloe:nth-child(3) { transform: translate(-50%, -50%) rotate(240deg) translateX(70px); }
 
-        @keyframes sharinganSpin {
-            from { transform: translate(-50%, -50%) rotate(0deg); }
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        @keyframes sharinganPulse {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
-        }
-
-        @keyframes tomaloeGlow {
-            0% { box-shadow: 0 0 10px #ff0000; }
-            100% { box-shadow: 0 0 25px #ff0000, 0 0 40px #ff4757; }
-        }
-
-        .byakugan-eye {
-            position: fixed;
-            width: 170px; /* 增大尺寸 */
-            height: 170px;
-            opacity: 0.35; /* 增加不透明度 */
-            z-index: -1;
-            pointer-events: none;
-            display: none;
-            filter: drop-shadow(0 0 15px #87ceeb);
-        }
-
-        .byakugan-eye.bottom-center {
-            bottom: 18%;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
+        /* 白眼 */
         .byakugan-inner {
             position: absolute;
             width: 100%;
@@ -426,256 +318,137 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            animation: byakuganPulse 3s ease-in-out infinite;
-            box-shadow: 0 0 20px rgba(135, 206, 235, 0.3);
+            box-shadow: 0 0 30px rgba(135,206,235,0.5);
+            animation: pulse-glow 3s infinite;
         }
-        .byakugan-circle:nth-child(1) { 
-            width: 40px; height: 40px; 
-            animation-delay: 0s; 
-            border-color: #87ceeb;
-        }
-        .byakugan-circle:nth-child(2) { 
-            width: 90px; height: 90px; 
-            animation-delay: 0.3s; 
-            border-color: #7fffd4;
-        }
-        .byakugan-circle:nth-child(3) { 
-            width: 100%; height: 100%; 
-            animation-delay: 0.6s; 
-            border-color: #e0ffff;
+        .byakugan-circle:nth-child(1) { width: 40px; height: 40px; border-color: #87ceeb; }
+        .byakugan-circle:nth-child(2) { width: 90px; height: 90px; border-color: #7fffd4; }
+        .byakugan-circle:nth-child(3) { width: 100%; height: 100%; border-color: #e0ffff; }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        @keyframes byakuganPulse {
-            0%, 100% { 
-                opacity: 0.4; 
-                border-width: 2px; 
-                box-shadow: 0 0 10px #87ceeb;
-            }
-            50% { 
-                opacity: 0.9; 
-                border-width: 5px; 
-                box-shadow: 0 0 30px #87ceeb, 0 0 50px #e0ffff;
-            }
+        @keyframes pulse-glow {
+            0% { opacity: 0.5; filter: drop-shadow(0 0 10px currentColor); }
+            100% { opacity: 1; filter: drop-shadow(0 0 30px currentColor); }
         }
 
-        @keyframes eyeGlow {
-            0% { filter: drop-shadow(0 0 10px currentColor); }
-            100% { filter: drop-shadow(0 0 25px currentColor); }
+        /* ========== 宇宙背景粒子 ========== */
+        .universe {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: radial-gradient(ellipse at 30% 40%, #1a1a2e, #000);
         }
 
-        /* ==================== 通用组件样式 ==================== */
-        .timeline-event {
-            background: rgba(255, 71, 87, 0.1);
-            border-left: 4px solid #ff4757;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 0 10px 10px 0;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { border-left-color: #ff4757; }
-            50% { border-left-color: #8a2be2; }
-        }
-
-        .chakra-point {
+        .star {
             position: absolute;
-            width: 12px; /* 增大尺寸 */
-            height: 12px;
-            background: #ff4757;
+            background: #fff;
             border-radius: 50%;
-            animation: chakraGlow 2s infinite;
-            display: none;
-            box-shadow: 0 0 10px #ff4757;
+            animation: twinkle var(--duration) infinite;
+            opacity: var(--opacity);
         }
 
-        @keyframes chakraGlow {
-            0%, 100% { 
-                box-shadow: 0 0 5px #ff4757, 0 0 10px #ff4757;
-                transform: scale(1);
-            }
-            50% { 
-                box-shadow: 0 0 25px #ff4757, 0 0 40px #8a2be2;
-                transform: scale(1.2);
-            }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
         }
 
-        .big-bang {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: radial-gradient(circle, #ff4757, #8a2be2, #000);
-            transform: translate(-50%, -50%);
-            z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .big-bang.active {
-            animation: bigBang 2s ease-out forwards;
-        }
-
-        @keyframes bigBang {
-            0% {
-                width: 0;
-                height: 0;
-                opacity: 1;
-                box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
-            }
-            50% {
-                width: 100vmax;
-                height: 100vmax;
-                opacity: 0.8;
-                box-shadow: 0 0 50px 20px rgba(138, 43, 226, 0.5);
-            }
-            100% {
-                width: 200vmax;
-                height: 200vmax;
-                opacity: 0;
-                box-shadow: 0 0 100px 40px rgba(255, 71, 87, 0.3);
-            }
-        }
-
-        .naruto-quote {
-            font-style: italic;
-            color: #ffa502;
-            text-align: center;
-            margin: 2.5rem 0;
-            padding: 1.5rem;
-            border: 1px solid #ffa502;
-            border-radius: 10px;
-            background: rgba(255, 165, 2, 0.1);
-        }
-
-        .cycle-counter {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 15px;
-            border-radius: 10px;
-            border: 1px solid #8a2be2;
-            font-size: 14px;
-            backdrop-filter: blur(5px);
-            z-index: 100;
-            display: none;
-        }
-
-        /* ==================== 音乐播放器样式 ==================== */
+        /* ========== 音乐播放器（玻璃态） ========== */
         .music-player {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.95);
-            padding: 20px;
-            border-radius: 20px;
-            border: 2px solid #2ed573;
-            backdrop-filter: blur(15px);
-            width: 90%;
-            max-width: 500px;
+            width: min(95%, 500px);
+            background: rgba(20, 20, 30, 0.85);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--accent);
+            border-radius: 40px;
+            padding: 1.5rem;
+            box-shadow: 0 0 50px rgba(46, 213, 115, 0.3), inset 0 0 20px rgba(255,71,87,0.2);
             z-index: 100;
-            box-shadow: 0 0 30px rgba(46, 213, 115, 0.3);
             cursor: move;
-            user-select: none;
-            transition: box-shadow 0.3s ease;
+            transition: 0.2s;
             display: none;
         }
 
         .music-player.dragging {
-            box-shadow: 0 0 50px rgba(46, 213, 115, 0.8);
-            border-color: #ff4757;
+            box-shadow: 0 0 80px var(--accent);
             transform: translateX(-50%) scale(1.02);
+            border-color: var(--primary);
         }
 
         .music-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            color: var(--accent);
             cursor: move;
-        }
-
-        .music-title {
-            color: #2ed573;
-            font-size: 16px;
-            font-weight: bold;
         }
 
         .music-controls {
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 15px;
-            margin: 15px 0;
+            gap: 1.5rem;
+            margin: 1rem 0;
         }
 
         .control-btn {
-            background: linear-gradient(45deg, #2ed573, #ff4757);
-            border: none;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            background: linear-gradient(145deg, #2ed573, #ff4757);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 18px;
-            position: relative;
-        }
-
-        .control-btn::after {
-            content: '';
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            right: -10px;
-            bottom: -10px;
         }
 
         .control-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 20px #2ed573;
-        }
-
-        .control-btn:active {
-            transform: scale(0.95);
+            box-shadow: 0 0 30px var(--accent);
         }
 
         .progress-container {
             width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            margin: 15px 0;
-            overflow: hidden;
-            cursor: pointer;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            margin: 1rem 0;
             position: relative;
+            cursor: pointer;
         }
 
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #2ed573, #ff4757);
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            border-radius: 10px;
             width: 0%;
+            position: relative;
             transition: width 0.1s;
-            border-radius: 3px;
         }
 
         .progress-handle {
             position: absolute;
             top: 50%;
-            width: 12px;
-            height: 12px;
+            width: 16px;
+            height: 16px;
             background: #fff;
             border-radius: 50%;
             transform: translate(-50%, -50%);
             opacity: 0;
             transition: opacity 0.2s;
-            box-shadow: 0 0 10px rgba(46, 213, 115, 0.8);
+            box-shadow: 0 0 15px var(--accent);
         }
 
         .progress-container:hover .progress-handle {
@@ -685,306 +458,227 @@
         .time-display {
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
-            color: #6c757d;
-            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: #aaa;
         }
 
         .volume-control {
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-top: 0.8rem;
         }
 
         .volume-control input {
             flex: 1;
             height: 4px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255,255,255,0.2);
             border-radius: 2px;
             outline: none;
-            -webkit-appearance: none;
-            cursor: pointer;
         }
 
-        .volume-control input::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 12px;
-            height: 12px;
-            background: #2ed573;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        /* ==================== 歌词显示样式 ==================== */
+        /* ========== 歌词窗口 ========== */
         .lyrics-container {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            padding: 30px 40px;
-            border-radius: 20px;
-            border: 2px solid #ff4757;
-            text-align: center;
-            backdrop-filter: blur(15px);
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--primary);
+            border-radius: 30px;
+            padding: 2.5rem;
             max-width: 80%;
+            text-align: center;
             z-index: 101;
-            box-shadow: 0 0 40px rgba(255, 71, 87, 0.4);
+            box-shadow: 0 0 80px var(--primary);
             display: none;
         }
 
         .lyrics-container.show {
             display: block;
-            animation: fadeIn 0.5s ease;
+            animation: fadeInUp 0.5s;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        }
-
-        .lyrics-title {
-            color: #ff4757;
-            font-size: 18px;
-            margin-bottom: 20px;
-            font-weight: bold;
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translate(-50%, 100%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
         }
 
         .current-lyric {
-            font-size: 24px;
-            color: #2ed573;
-            margin: 15px 0;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
+            font-size: 2rem;
+            color: var(--accent);
+            margin: 1rem 0;
+            min-height: 3rem;
+            transition: 0.3s;
+            text-shadow: var(--glow-accent);
         }
 
         .next-lyric {
-            font-size: 16px;
-            color: #6c757d;
-            margin-top: 10px;
-            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            color: #aaa;
         }
 
         .lyrics-close {
             position: absolute;
-            top: 10px;
-            right: 15px;
+            top: 15px;
+            right: 20px;
             background: none;
             border: none;
-            color: #ff4757;
-            font-size: 20px;
+            color: var(--primary);
+            font-size: 2rem;
             cursor: pointer;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
-        .lyrics-close:hover {
-            background: rgba(255, 71, 87, 0.2);
-        }
-
-        /* ==================== 大爆炸按钮样式 ==================== */
+        /* ========== 大爆炸按钮 ========== */
         .bigbang-trigger {
             position: fixed;
             top: 20px;
             left: 20px;
-            background: rgba(255, 71, 87, 0.8);
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
             color: white;
             border: none;
-            padding: 12px 18px;
-            border-radius: 8px;
-            cursor: pointer;
+            padding: 12px 24px;
+            border-radius: 50px;
             font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
             z-index: 100;
+            box-shadow: var(--glow-primary);
             backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
+            transition: 0.3s;
             display: none;
         }
 
         .bigbang-trigger:hover {
-            background: #8a2be2;
-            transform: scale(1.05);
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 0 50px var(--primary);
         }
 
-        /* ==================== 响应式设计 ==================== */
+        /* ========== 轮回计数器 ========== */
+        .cycle-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--secondary);
+            color: #fff;
+            z-index: 100;
+            display: none;
+            font-size: 1rem;
+            box-shadow: var(--glow-secondary);
+        }
+
+        /* ========== 查克拉节点 ========== */
+        .chakra-point {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--primary);
+            animation: chakra-pulse 2s infinite;
+            display: none;
+        }
+
+        @keyframes chakra-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(2); opacity: 1; }
+        }
+
+        /* ========== 大爆炸效果 ========== */
+        .big-bang {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--primary), var(--secondary), transparent);
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .big-bang.active {
+            animation: bigBang 2s ease-out forwards;
+        }
+
+        @keyframes bigBang {
+            0% { width: 0; height: 0; opacity: 1; }
+            50% { width: 200vmax; height: 200vmax; opacity: 0.8; }
+            100% { width: 300vmax; height: 300vmax; opacity: 0; }
+        }
+
+        /* ========== 响应式 ========== */
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-                margin: 30px auto 150px auto;
-            }
-
-            .code-display {
-                padding: 1.5rem;
-                font-size: 14px;
-                max-height: 50vh;
-            }
-
-            .rinnegan-eye, .sharingan-eye, .byakugan-eye {
-                transform: scale(0.8);
-            }
-            .rinnegan-eye.left-top { top: 10%; left: 5%; }
-            .sharingan-eye.right-top { top: 12%; right: 5%; }
-            .byakugan-eye.bottom-center { bottom: 15%; }
-
-            .music-player {
-                width: 95%;
-                padding: 15px;
-            }
-
-            .control-btn {
-                width: 45px;
-                height: 45px;
-                font-size: 16px;
-            }
-
-            .current-lyric {
-                font-size: 20px;
-            }
-
-            .lyrics-container {
-                padding: 20px 30px;
-            }
-
-            .timeline-event, .naruto-quote {
-                padding: 1rem;
-                margin: 1rem 0;
-            }
+            .eye-container { transform: scale(0.6); }
+            .container { padding: 1rem; }
+            .code-display { font-size: 0.85rem; }
+            .current-lyric { font-size: 1.5rem; }
         }
 
-        /* ==================== 动画效果 ==================== */
+        /* ========== 动画工具 ========== */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-        
-        @keyframes unlockFadeIn {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
-            }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
         }
     </style>
 </head>
 <body>
-    <!-- ==================== 安全防护层 ==================== -->
+    <!-- 安全防护层 -->
     <div class="anti-inspect" id="antiInspect">
         <div class="warning-icon">⚠️</div>
         <div class="warning-text">
-            <h3>Security Warning</h3>
-            <p>Developer tools detected!</p>
-            <p>Page has been locked for security.</p>
-            <p>Please close developer tools and refresh the page.</p>
-            <h3>安全警告</h3>
-            <p>检测到开发者工具已打开！</p>
-            <p>为了保护内容安全，页面已被锁定。</p>
-            <p>请关闭开发者工具并刷新页面。</p>
+            <h3>🔐 安全警告</h3>
+            <p>检测到开发者工具已打开！页面已锁定。</p>
+            <p>请关闭工具并刷新页面。</p>
         </div>
     </div>
-
-    <!-- ==================== 混淆层 ==================== -->
     <div class="obfuscation-layer"></div>
+    <div class="keyboard-watcher" id="keyboardWatcher">监控中...</div>
 
-    <!-- ==================== 键盘监听器 ==================== -->
-    <div class="keyboard-watcher" id="keyboardWatcher">
-        Security monitoring...
-    </div>
-
-    <!-- ==================== 防调试保护 ==================== -->
-    <div class="anti-debug" id="antiDebug">
-        <script>
-            var fakePasswords = [
-                "Password error, please try again",
-                "This is not the correct password",
-                "Keep trying...",
-                "Password may be elsewhere",
-                "Wish Xueyou Ge eternal happiness",
-                "Vivi Jie is the most beautiful",
-                "Reincarnation love eternal"
-            ];
-            function fakeCheckPassword(pass) {
-                console.log("Fake password check:", pass);
-                return false;
-            }
-            var FAKE_PASSWORD = "fake password 123";
-            var ANOTHER_FAKE = "another fake 456";
-        </script>
-        <style>
-            /* Fake CSS comments with misleading info */
-            /* Password: 123456 */
-            /* Unlock password: admin */
-            /* Security code: 0000 */
-        </style>
-    </div>
-
-    <!-- ==================== 密码保护界面 ==================== -->
+    <!-- 密码保护界面 -->
     <div class="protected-screen" id="protectedScreen">
-        <div class="title">Eternal Love 🔒</div>
+        <div class="title">轮回之爱</div>
         <div class="password-form">
-            <input type="text" class="password-input" id="passwordInput"
-                   placeholder="Enter Chinese blessing / 请输入中文祝福语..."
-                   onkeypress="checkEnter(event)"
-                   autocomplete="off">
-            <button class="submit-btn" onclick="checkPassword()" id="submitBtn">Unlock Content / 解锁内容</button>
+            <input type="text" class="password-input" id="passwordInput" placeholder="请输入中文祝福语..." onkeypress="checkEnter(event)" autocomplete="off">
+            <button class="submit-btn" onclick="checkPassword()" id="submitBtn">解锁内容</button>
         </div>
         <div class="hint">
-            💡 Hint: Password is a Chinese blessing phrase<br>
-            💡 提示：密码是一句中文祝福语<br>
-            🔒 Contains "学友哥" and "Vivi姐"<br>
-            🔒 包含"学友哥"和"Vivi姐"<br>
-            ⚠️ Do not use Ctrl+S or developer tools<br>
-            ⚠️ 禁止使用Ctrl+S或开发者工具<br>
-            🎵 Music will play after unlocking<br>
-            🎵 解锁后音乐将自动播放
+            💡 提示：密码是一句包含“学友哥”和“Vivi姐”的中文祝福语<br>
+            🔒 例如：祝学友哥与Vivi姐永世幸福<br>
+            🎵 解锁后自动播放《克卜勒》<br>
+            🚫 请勿使用 Ctrl+S 或开发者工具
         </div>
-        <div class="error-message" id="errorMessage">
-            Incorrect password. Please try again.<br>
-            密码错误，请重试
-        </div>
+        <div class="error-message" id="errorMessage">密码错误，请重试</div>
     </div>
 
-    <!-- ==================== 三种瞳术特效 ==================== -->
-    <!-- 轮回眼 (左上) -->
-    <div class="rinnegan-eye left-top">
-        <div class="rinnegan-circle"></div>
-        <div class="rinnegan-circle"></div>
-        <div class="rinnegan-circle"></div>
-        <div class="rinnegan-circle"></div>
+    <!-- 火影瞳术特效 -->
+    <div class="eye-container left-top">
+        <div class="rinnegan-circle"></div><div class="rinnegan-circle"></div><div class="rinnegan-circle"></div><div class="rinnegan-circle"></div>
     </div>
-
-    <!-- 写轮眼 (右上) -->
-    <div class="sharingan-eye right-top">
+    <div class="eye-container right-top">
         <div class="sharingan-inner">
-            <div class="tomaloe"></div>
-            <div class="tomaloe"></div>
-            <div class="tomaloe"></div>
+            <div class="tomaloe"></div><div class="tomaloe"></div><div class="tomaloe"></div>
         </div>
     </div>
-
-    <!-- 白眼 (底部居中) -->
-    <div class="byakugan-eye bottom-center">
+    <div class="eye-container bottom-center">
         <div class="byakugan-inner">
-            <div class="byakugan-circle"></div>
-            <div class="byakugan-circle"></div>
-            <div class="byakugan-circle"></div>
+            <div class="byakugan-circle"></div><div class="byakugan-circle"></div><div class="byakugan-circle"></div>
         </div>
     </div>
 
-    <!-- ==================== 原有组件 ==================== -->
-    <button class="bigbang-trigger" onclick="triggerBigBang()">💥 Trigger Big Bang / 触发宇宙大爆炸</button>
-    <div class="cycle-counter" id="cycleCounter">
-        Reincarnation Cycle: <span id="currentCycle">0</span>
-    </div>
+    <!-- 按钮与计数器 -->
+    <button class="bigbang-trigger" onclick="triggerBigBang()">💥 触发宇宙大爆炸</button>
+    <div class="cycle-counter" id="cycleCounter">轮回次数: <span id="currentCycle">0</span></div>
 
     <!-- 宇宙背景 -->
     <div class="universe" id="universe"></div>
@@ -992,8 +686,8 @@
     <!-- 音乐播放器 -->
     <div class="music-player" id="musicPlayer">
         <div class="music-header" id="dragHandle">
-            <div class="music-title">🎵 Stefanie Sun - Kepler (Drag to move / 可拖拽移动)</div>
-            <button class="control-btn" onclick="toggleLyrics()" title="Show Lyrics / 显示歌词">📝</button>
+            <span>🎵 孙燕姿 - 克卜勒</span>
+            <button class="control-btn" style="width:40px;height:40px;" onclick="toggleLyrics()">📝</button>
         </div>
         <div class="time-display">
             <span id="currentTime">0:00</span>
@@ -1004,9 +698,9 @@
             <div class="progress-handle" id="progressHandle"></div>
         </div>
         <div class="music-controls">
-            <button class="control-btn" onclick="skipBackward()" title="Back 15s / 后退15秒">⏪</button>
-            <button class="control-btn" onclick="playPause()" id="playPauseBtn" title="Play/Pause / 播放/暂停">▶️</button>
-            <button class="control-btn" onclick="skipForward()" title="Forward 15s / 前进15秒">⏩</button>
+            <button class="control-btn" onclick="skipBackward()">⏪</button>
+            <button class="control-btn" onclick="playPause()" id="playPauseBtn">▶️</button>
+            <button class="control-btn" onclick="skipForward()">⏩</button>
         </div>
         <div class="volume-control">
             <span>🔊</span>
@@ -1018,164 +712,106 @@
     <!-- 歌词显示 -->
     <div class="lyrics-container" id="lyricsContainer">
         <button class="lyrics-close" onclick="toggleLyrics()">×</button>
-        <div class="lyrics-title">Stefanie Sun - 克卜勒 (Kepler)</div>
         <div class="current-lyric" id="currentLyric">等不到你 成为我最闪亮的星星</div>
         <div class="next-lyric" id="nextLyric">我依然愿意借给你我的光</div>
     </div>
 
-    <!-- 主内容容器 -->
+    <!-- 主内容 -->
     <div class="container">
-        <!-- 代码表白区域 -->
         <div class="code-display">
-            <span class="comments">/**</span><br>
-            <span class="comments"> * 无限月读·轮回之爱 - Infinite Tsukuyomi of Eternal Love</span><br>
-            <span class="comments"> * 创作者: 学友哥 (六道仙人转世)</span><br>
-            <span class="comments"> * 时间: 从创世之初到世界终结</span><br>
-            <span class="comments"> * 描述: 跨越多元宇宙的羁绊，每27年一次的轮回重生</span><br>
-            <span class="comments"> * 背景音乐: 孙燕姿《克卜勒》- 我们的唤醒之歌</span><br>
-            <span class="comments"> * 特殊: 27年轮回系统，宇宙大爆炸，火影忍者元素融合</span><br>
-            <span class="comments"> */</span><br>
+            <span class="code-comment">/**</span><br>
+            <span class="code-comment"> * 无限月读·轮回之爱</span><br>
+            <span class="code-comment"> * 创作者: 学友哥 (六道仙人转世)</span><br>
+            <span class="code-comment"> * 时间: 从创世之初到世界终结</span><br>
+            <span class="code-comment"> * 描述: 跨越多元宇宙的羁绊，每27年一次的轮回重生</span><br>
+            <span class="code-comment"> * 背景音乐: 孙燕姿《克卜勒》- 唤醒之歌</span><br>
+            <span class="code-comment"> */</span><br>
             <br>
-            <span class="keyword">const</span> 六道仙人 = <span class="string">"学友哥"</span>;<br>
-            <span class="keyword">const</span> 辉夜姬 = <span class="string">"Vivi"</span>;<br>
-            <span class="keyword">const</span> 轮回周期 = <span class="number">27</span>; <span class="comments">// 年 - 火影中的轮回周期</span><br>
-            <span class="keyword">const</span> 查克拉总量 = <span class="number">999999</span>;<br>
-            <span class="keyword">const</span> 唤醒歌曲 = <span class="string">"孙燕姿 - 克卜勒"</span>; <span class="comments">// KTV唤醒记忆的歌曲</span><br>
+            <span class="code-keyword">const</span> 六道仙人 = <span class="code-string">"学友哥"</span>;<br>
+            <span class="code-keyword">const</span> 辉夜姬 = <span class="code-string">"Vivi姐"</span>;<br>
+            <span class="code-keyword">const</span> 轮回周期 = <span class="code-number">27</span>; <span class="code-comment">// 年 - 火影中的轮回周期</span><br>
+            <span class="code-keyword">const</span> 唤醒歌曲 = <span class="code-string">"孙燕姿 - 克卜勒"</span>;<br>
             <br>
-            <span class="comments">// 孙燕姿音乐系统 - 纪念在KTV被唤醒的瞬间</span><br>
-            <span class="keyword">class</span> 燕姿音乐系统 {<br>
-            <span class="space"><span class="keyword">constructor</span>() {</span><br>
-            <span class="space"><span class="space">this</span>.歌曲列表 = </span>[<br>
-            <span class="space"><span class="space"><span class="space">{ 名称: </span></span><span class="string">"克卜勒"</span>, 主题: <span class="string">"宇宙与命运"</span> },</span><br>
-            <span class="space"><span class="space"><span class="space">{ 名称: </span></span><span class="string">"遇见"</span>, 主题: <span class="string">"缘分与相遇"</span> },</span><br>
-            <span class="space"><span class="space"><span class="space">{ 名称: </span></span><span class="string">"开始懂了"</span>, 主题: <span class="string">"成长与领悟"</span> }</span><br>
-            <span class="space"><span class="space">];</span></span><br>
-            <span class="space"><span class="space">this</span>.当前歌曲 = </span><span class="number">0</span>;<br>
-            <span class="space">}</span><br>
-            <br>
-            <span class="space">播放唤醒之歌() {</span><br>
-            <span class="space"><span class="space">console</span>.log(<span class="string">"🎵 被孙燕姿的歌声唤醒... 在KTV的那一天永远铭记"</span>);</span><br>
-            <span class="space"><span class="space">触发大爆炸();</span></span><br>
-            <span class="space"><span class="space">return</span> <span class="string">"音乐的力量穿越轮回，唤醒沉睡的记忆"</span>;</span><br>
-            <span class="space">}</span><br>
-            <br>
-            <span class="space">切换歌曲() {</span><br>
-            <span class="space"><span class="space">this</span>.当前歌曲 = </span>(this.当前歌曲 + 1) % this.歌曲列表.length;<br>
-            <span class="space"><span class="space">return</span> this.歌曲列表[this.当前歌曲].名称;</span><br>
-            <span class="space">}</span><br>
+            <span class="code-comment">// 燕姿音乐系统 - 纪念KTV唤醒的瞬间</span><br>
+            <span class="code-keyword">class</span> 燕姿音乐系统 {<br>
+            <span class="code-indent"><span class="code-function">constructor</span>() {</span><br>
+            <span class="code-indent"><span class="code-indent">this.歌曲列表 = [</span></span><br>
+            <span class="code-indent"><span class="code-indent"><span class="code-indent">{ 名称: <span class="code-string">"克卜勒"</span>, 主题: <span class="code-string">"宇宙与命运"</span> },</span></span><br>
+            <span class="code-indent"><span class="code-indent"><span class="code-indent">{ 名称: <span class="code-string">"遇见"</span>, 主题: <span class="code-string">"缘分与相遇"</span> },</span></span><br>
+            <span class="code-indent"><span class="code-indent"><span class="code-indent">{ 名称: <span class="code-string">"开始懂了"</span>, 主题: <span class="code-string">"成长与领悟"</span> }</span></span><br>
+            <span class="code-indent"><span class="code-indent">];</span></span><br>
+            <span class="code-indent"><span class="code-indent">this.当前歌曲 = 0;</span></span><br>
+            <span class="code-indent">}</span><br>
+            <span class="code-indent">播放唤醒之歌() {</span><br>
+            <span class="code-indent"><span class="code-indent">console.log(<span class="code-string">"🎵 被孙燕姿的歌声唤醒..."</span>);</span></span><br>
+            <span class="code-indent"><span class="code-indent">触发大爆炸();</span></span><br>
+            <span class="code-indent"><span class="code-indent">return <span class="code-string">"音乐的力量穿越轮回"</span>;</span></span><br>
+            <span class="code-indent">}</span><br>
             }<br>
             <br>
-            <span class="comments">// 六道模式·开启 - 火影忍者元素</span><br>
-            <span class="keyword">class</span> 六道模式 {<br>
-            <span class="space"><span class="keyword">constructor</span>() {</span><br>
-            <span class="space"><span class="space">this</span>.轮回眼 = </span><span class="keyword">true</span>;<br>
-            <span class="space"><span class="space">this</span>.求道玉 = </span><span class="number">9</span>;<br>
-            <span class="space"><span class="space">this</span>.阴阳遁 = </span><span class="keyword">true</span>;<br>
-            <span class="space"><span class="space">this</span>.背景音乐 = </span><span class="keyword">new</span> 燕姿音乐系统();<br>
-            <span class="space">}</span><br>
-            <br>
-            <span class="space">无限月读() {</span><br>
-            <span class="space"><span class="space">this</span>.背景音乐.播放唤醒之歌();</span><br>
-            <span class="space"><span class="space">return</span> <span class="string">"让世界陷入爱的幻术，只有我们的羁绊永恒"</span>;</span><br>
-            <span class="space">}</span><br>
-            <br>
-            <span class="space">地爆天星(爱意) {</span><br>
-            <span class="space"><span class="space">const</span> 引力 = </span>爱意 * 1000;<br>
-            <span class="space"><span class="space">return</span> <span class="string">`创造新宇宙，引力强度: ${引力}`</span>;</span><br>
-            <span class="space">}</span><br>
+            <span class="code-comment">// 六道模式·开启</span><br>
+            <span class="code-keyword">class</span> 六道模式 {<br>
+            <span class="code-indent"><span class="code-function">constructor</span>() {</span><br>
+            <span class="code-indent"><span class="code-indent">this.轮回眼 = true;</span></span><br>
+            <span class="code-indent"><span class="code-indent">this.求道玉 = 9;</span></span><br>
+            <span class="code-indent"><span class="code-indent">this.背景音乐 = new 燕姿音乐系统();</span></span><br>
+            <span class="code-indent">}</span><br>
+            <span class="code-indent">无限月读() {</span><br>
+            <span class="code-indent"><span class="code-indent">this.背景音乐.播放唤醒之歌();</span></span><br>
+            <span class="code-indent"><span class="code-indent">return <span class="code-string">"让世界陷入爱的幻术"</span>;</span></span><br>
+            <span class="code-indent">}</span><br>
             }<br>
             <br>
-            <span class="comments">// 27年轮回系统 - 类似火影的转世设定</span><br>
-            <span class="keyword">class</span> 轮回系统 {<br>
-            <span class="space"><span class="keyword">constructor</span>() {</span><br>
-            <span class="space"><span class="space">this</span>.当前纪元 = </span><span class="number">0</span>;<br>
-            <span class="space"><span class="space">this</span>.轮回次数 = </span><span class="number">0</span>;<br>
-            <span class="space"><span class="space">this</span>.下次大事件 = </span>new Date().getFullYear() + 轮回周期;<br>
-            <span class="space">}</span><br>
+            <span class="code-keyword">const</span> 六道 = <span class="code-keyword">new</span> 六道模式();<br>
+            <span class="code-keyword">const</span> 轮回 = <span class="code-keyword">new</span> (class 轮回系统 {<br>
+            <span class="code-indent"><span class="code-function">constructor</span>() { this.次数 = 0; }</span><br>
+            <span class="code-indent">宇宙重启() {</span><br>
+            <span class="code-indent"><span class="code-indent">this.次数++;</span></span><br>
+            <span class="code-indent"><span class="code-indent">触发大爆炸视觉效果();</span></span><br>
+            <span class="code-indent"><span class="code-indent">更新轮回显示();</span></span><br>
+            <span class="code-indent"><span class="code-indent">return <span class="code-string">`第${this.次数}次轮回开始`</span>;</span></span><br>
+            <span class="code-indent">}</span><br>
+            })();<br>
             <br>
-            <span class="space">宇宙重启() {</span><br>
-            <span class="space"><span class="space">this</span>.轮回次数++;</span><br>
-            <span class="space"><span class="space">this</span>.当前纪元++;</span><br>
-            <span class="space"><span class="space">触发大爆炸视觉效果();</span></span><br>
-            <span class="space"><span class="space">console</span>.log(<span class="string">`💥 第${this.轮回次数}次宇宙大爆炸发生！`</span>);</span><br>
-            <span class="space"><span class="space">return</span> <span class="string">`第${this.轮回次数}次轮回开始 - 纪元${this.当前纪元}`</span>;</span><br>
-            <span class="space">}</span><br>
-            <br>
-            <span class="space">检查自然轮回() {</span><br>
-            <span class="space"><span class="space">const</span> 当前时间 = </span>new Date();<br>
-            <span class="space"><span class="space">const</span> 月份 = </span>当前时间.getMonth() + 1;<br>
-            <span class="space"><span class="space">const</span> 日期 = </span>当前时间.getDate();<br>
-            <span class="space"><span class="space">return</span> 月份 === 6 && 日期 === 7;</span><br>
-            <span class="space">}</span><br>
+            <span class="code-comment">// 永恒的誓言</span><br>
+            <span class="code-function">function</span> 忍者誓言() {<br>
+            <span class="code-indent">console.log(<span class="code-string">"即使轮回转世，这份羁绊也不会消失！"</span>);</span><br>
             }<br>
-            <br>
-            <span class="keyword">const</span> 六道 = <span class="keyword">new</span> 六道模式();<br>
-            <span class="keyword">const</span> 轮回 = <span class="keyword">new</span> 轮回系统();<br>
-            <br>
-            <span class="comments">// 永恒的誓言 - 类似鸣人对佐助的羁绊</span><br>
-            <span class="function">function</span> 忍者誓言() {<br>
-            <span class="space"><span class="keyword">if</span> (轮回.检查自然轮回()) {</span><br>
-            <span class="space"><span class="space">console</span>.log(轮回.宇宙重启());</span><br>
-            <span class="space"><span class="space">console</span>.log(六道.无限月读());</span><br>
-            <span class="space">}</span><br>
-            <span class="space"><span class="keyword">return</span> <span class="string">"即使轮回转世，这份羁绊也不会消失！"</span>;</span><br>
-            }<br>
-            <br>
-            <span class="comments">// 启动无限轮回</span><br>
-            <span class="keyword">setInterval</span>(() => {<br>
-            <span class="space">忍者誓言();</span><br>
-            <span class="space">更新轮回显示();</span><br>
-            <span class="space"><span class="keyword">if</span> (Math.random() < 0.01) {</span><br>
-            <span class="space"><span class="space">触发查克拉波动();</span></span><br>
-            <span class="space">}</span><br>
-            }, 1000);<br>
+            <span class="code-comment">// 每27秒模拟一次轮回（演示）</span><br>
+            <span class="code-keyword">setInterval</span>(忍者誓言, 27000);<br>
         </div>
 
         <!-- 火影经典语录 -->
-        <div class="naruto-quote">
-            "I never go back on my word! That's my nindo, my ninja way!"<br>
-            "That's not the kind of pain you feel when your parents scold you!"<br>
-            "Because that's my ninja way!"<br>
-            - Uzumaki Naruto (Our Spiritual Reflection)
+        <div class="naruto-quote" style="margin:2rem 0;padding:1.5rem;border-left:4px solid var(--primary);background:rgba(255,71,87,0.05);border-radius:20px;">
+            “言出必行，这就是我的忍道！”<br>—— 漩涡鸣人
         </div>
 
-        <!-- 时间线事件 -->
-        <div class="timeline-event">
-            <strong>🌌 Universe Epoch 1:</strong> Six Paths Sage creates ninja religion, love chakra first appears
+        <!-- 时间线事件（中文版） -->
+        <div class="timeline-event" style="background:rgba(138,43,226,0.1);border-left-color:var(--secondary);margin:1rem 0;padding:1rem;">
+            🌌 纪元1：六道仙人开创忍宗，爱的查克拉首次出现
         </div>
-        <div class="timeline-event">
-            <strong>🎵 Special Event:</strong> Awakened by Stefanie Sun's song in KTV, wheel of fate begins to turn
+        <div class="timeline-event" style="background:rgba(46,213,115,0.1);border-left-color:var(--accent);">
+            🎵 特殊事件：在KTV被孙燕姿歌声唤醒，命运之轮开始转动
         </div>
-        <div class="timeline-event">
-            <strong>💫 Universe Epoch 27:</strong> First reincarnation, Kaguya appears, Infinite Tsukuyomi activates
+        <div class="timeline-event" style="background:rgba(255,165,2,0.1);border-left-color:var(--highlight);">
+            💫 纪元27：第一次轮回，辉夜现身，无限月读发动
         </div>
-        <div class="timeline-event">
-            <strong>🔥 Universe Epoch 54:</strong> Ninja world forms, bonds of love transcend time and space
+        <div class="timeline-event" style="background:rgba(255,71,87,0.1);border-left-color:var(--primary);">
+            ❤️ 当前纪元：代码与查克拉融合，在数字世界创造永恒之爱
         </div>
-        <div class="timeline-event">
-            <strong>❤️ Current Epoch:</strong> Code and chakra merge, creating eternal love in the digital world
-        </div>
-
-        <!-- 查克拉节点 -->
-        <div class="chakra-point" style="top: 100px; left: 100px;"></div>
-        <div class="chakra-point" style="top: 200px; right: 150px;"></div>
-        <div class="chakra-point" style="bottom: 150px; left: 200px;"></div>
-        <div class="chakra-point" style="bottom: 100px; right: 100px;"></div>
     </div>
 
-    <!-- 宇宙大爆炸效果 -->
+    <!-- 大爆炸效果元素 -->
     <div class="big-bang" id="bigBang"></div>
 
-    <!-- 音频元素 -->
+    <!-- 音频 -->
     <audio id="backgroundMusic" preload="auto">
-        <!-- 如果没有本地音频文件，可以使用在线音频 -->
-        <!-- 这里我们使用一个占位符，实际使用时请替换为真实音频URL -->
         <source src="music/yanzi-kepule.ogg" type="audio/mp3">
         您的浏览器不支持音频播放
     </audio>
 
     <script>
-        // ==================== 全局状态变量 ====================
+        // ========== 全局变量 ==========
         let contentUnlocked = false;
         let securityLocked = false;
         let unlockAttempts = 0;
@@ -1183,474 +819,180 @@
         const MAX_ATTEMPTS = 5;
         const MAX_VIOLATIONS = 3;
 
-        // ==================== 高级安全防护系统 ====================
-        (function() {
-            'use strict';
-            
-            // 密码加密系统
-            const passwordSystem = {
-                fragments: {
-                    a: "祝学友哥",
-                    b: "与Vivi姐",
-                    c: "永世幸福"
-                },
-                encrypt: function(text) {
-                    let result = "";
-                    for (let i = 0; i < text.length; i++) {
-                        result += String.fromCharCode(text.charCodeAt(i) ^ 0x55);
-                    }
-                    return result;
-                },
-                decrypt: function(encrypted) {
-                    return this.encrypt(encrypted);
-                },
-                getRealPassword: function() {
-                    return this.fragments.a + this.fragments.b + this.fragments.c;
-                }
-            };
+        // ========== 密码加密系统（中文友好） ==========
+        const 密码系统 = {
+            片段: {
+                a: "祝学友哥",
+                b: "与Vivi姐",
+                c: "永世幸福"
+            },
+            加密(text) {
+                return text.split('').map(ch => String.fromCharCode(ch.charCodeAt(0) ^ 0x55)).join('');
+            },
+            解密(enc) {
+                return this.加密(enc); // XOR 自逆
+            },
+            获取真实密码() {
+                return this.片段.a + this.片段.b + this.片段.c;
+            }
+        };
 
-            // 存储加密密码
-            const ENCRYPTED_PASSWORD = passwordSystem.encrypt(passwordSystem.getRealPassword());
-            
-            // 键盘快捷键防护
-            const keyProtection = {
-                blockedCombos: [
-                    { key: 'F12', description: 'Developer Tools (F12)' },
-                    { ctrl: true, key: 's', description: 'Save Page (Ctrl+S)' },
-                    { ctrl: true, key: 'u', description: 'View Source (Ctrl+U)' },
-                    { ctrl: true, shift: true, key: 'i', description: 'Developer Tools (Ctrl+Shift+I)' },
-                    { ctrl: true, shift: true, key: 'j', description: 'Developer Console (Ctrl+Shift+J)' },
-                    { ctrl: true, shift: true, key: 'c', description: 'Inspect Element (Ctrl+Shift+C)' },
-                    { ctrl: true, shift: true, key: 'k', description: 'Developer Tools (Ctrl+Shift+K)' }
-                ],
-                
-                init: function() {
-                    // 监听键盘事件，阻止特定的快捷键
-                    document.addEventListener('keydown', (e) => {
-                        // 检查是否为阻止的组合键
-                        for (const combo of this.blockedCombos) {
-                            if (this.matchCombo(e, combo)) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                this.onBlockedCombo(combo);
-                                return false;
-                            }
-                        }
-                        
-                        // 允许所有其他按键（包括中文输入）
-                        return true;
-                    }, true);
-                    
-                    // 防止右键菜单（但允许在密码框中使用）
-                    document.addEventListener('contextmenu', (e) => {
-                        // 如果是在密码输入框中，允许右键菜单
-                        if (e.target.id === 'passwordInput') {
-                            return true;
-                        }
-                        
-                        // 其他情况下阻止右键菜单
-                        e.preventDefault();
-                        return false;
-                    }, true);
-                },
-                
-                matchCombo: function(e, combo) {
-                    // 检查F12
-                    if (combo.key === 'F12' && e.key === 'F12') return true;
-                    
-                    // 检查其他组合键
-                    if (combo.ctrl && !e.ctrlKey) return false;
-                    if (combo.shift && !e.shiftKey) return false;
-                    if (combo.alt && !e.altKey) return false;
-                    if (combo.key && e.key.toLowerCase() !== combo.key.toLowerCase()) return false;
-                    return true;
-                },
-                
-                onBlockedCombo: function(combo) {
-                    console.warn(`⚠️ Security blocked: ${combo.description}`);
-                    
-                    securityViolations++;
-                    
-                    // 显示警告
-                    const errorDiv = document.getElementById('errorMessage');
-                    if (errorDiv) {
-                        errorDiv.textContent = `Security Warning: ${combo.description} is prohibited! (Violations: ${securityViolations}/${MAX_VIOLATIONS})`;
-                        errorDiv.style.display = 'block';
-                        
-                        // 3秒后隐藏警告
-                        setTimeout(() => {
-                            errorDiv.style.display = 'none';
-                        }, 3000);
-                    }
-                    
-                    // 显示键盘监听器
-                    const watcher = document.getElementById('keyboardWatcher');
-                    if (watcher) {
-                        watcher.textContent = `Blocked: ${combo.description}`;
-                        watcher.style.display = 'block';
-                        setTimeout(() => watcher.style.display = 'none', 2000);
-                    }
-                    
-                    // 达到最大违规次数时锁定安全
-                    if (securityViolations >= MAX_VIOLATIONS) {
-                        this.lockSecurity();
-                    }
-                },
-                
-                lockSecurity: function() {
-                    securityLocked = true;
-                    const screen = document.getElementById('protectedScreen');
-                    if (screen) {
-                        screen.innerHTML = `
-                            <div class="title">🔒 Security Locked</div>
-                            <div style="margin: 2rem 0; padding: 1.5rem; background: rgba(255, 71, 87, 0.1); border-radius: 10px;">
-                                <p>Multiple security violations detected, page has been locked.</p>
-                                <p>Please refresh the page and try again.</p>
-                                <p style="color: #6c757d; font-size: 0.9rem; margin-top: 1rem;">
-                                    Lock reason: Multiple attempts to use prohibited shortcuts
-                                </p>
-                            </div>
-                        `;
-                    }
-                }
-            };
+        const 加密密码 = 密码系统.加密(密码系统.获取真实密码());
 
-            // 防调试检测系统
-            const antiDebug = {
-                isDebugging: false,
-                lastCheck: Date.now(),
-                checkInterval: null,
-                
-                // 检测开发者工具
-                detectDevTools: function() {
-                    const threshold = 100;
-                    const start = performance.now();
-                    debugger;
-                    const end = performance.now();
-                    return end - start > threshold;
-                },
-                
-                // 启动保护
-                startProtection: function() {
-                    this.checkInterval = setInterval(() => {
-                        if (this.detectDevTools()) {
-                            this.onDevToolsDetected();
-                        }
-                    }, 1000);
-                },
-                
-                // 开发者工具被检测到
-                onDevToolsDetected: function() {
-                    if (!this.isDebugging) {
-                        this.isDebugging = true;
-                        const antiInspect = document.getElementById('antiInspect');
-                        if (antiInspect) {
-                            antiInspect.style.display = 'flex';
-                        }
+        // ========== 键盘防护 ==========
+        const 键盘防护 = {
+            禁用组合: [
+                { key: 'F12' }, { ctrl: true, key: 's' }, { ctrl: true, key: 'u' },
+                { ctrl: true, shift: true, key: 'i' }, { ctrl: true, shift: true, key: 'j' },
+                { ctrl: true, shift: true, key: 'c' }
+            ],
+            init() {
+                document.addEventListener('keydown', (e) => {
+                    for (let combo of this.禁用组合) {
+                        if (combo.key === 'F12' && e.key === 'F12') { e.preventDefault(); this.违规('F12'); return; }
+                        if (combo.ctrl && e.ctrlKey && combo.key === e.key.toLowerCase()) { e.preventDefault(); this.违规(combo.key); return; }
+                        if (combo.ctrl && combo.shift && e.ctrlKey && e.shiftKey && combo.key === e.key.toLowerCase()) { e.preventDefault(); this.违规(combo.key); return; }
                     }
-                },
-                
-                // 停止保护
-                stopProtection: function() {
-                    if (this.checkInterval) {
-                        clearInterval(this.checkInterval);
-                    }
-                }
-            };
-
-            // 防保存机制
-            const saveProtection = {
-                init: function() {
-                    // 防止右键另存为
-                    document.addEventListener('contextmenu', (e) => {
-                        if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
-                            e.preventDefault();
-                            return false;
-                        }
-                    });
-                    
-                    // 防止拖拽保存
-                    document.addEventListener('dragstart', (e) => {
-                        if (e.target.tagName === 'IMG') {
-                            e.preventDefault();
-                            return false;
-                        }
-                    });
-                    
-                    // 防止打印
-                    window.addEventListener('beforeprint', (e) => {
-                        e.preventDefault();
-                        document.body.innerHTML = "<h1 style='text-align:center;color:#ff4757;margin-top:50px;'>Printing is disabled</h1>";
-                        return false;
-                    });
-                }
-            };
-
-            // 密码检查函数
-            window.checkPassword = function() {
-                if (securityLocked) {
-                    alert('Page has been security locked, please refresh and try again.');
-                    return;
-                }
-                
-                const input = document.getElementById('passwordInput').value.trim();
-                const errorMsg = document.getElementById('errorMessage');
-                const submitBtn = document.getElementById('submitBtn');
-                
-                // 解密输入的密码进行比较
-                const encryptedInput = passwordSystem.encrypt(input);
-                
-                if (encryptedInput === ENCRYPTED_PASSWORD) {
-                    unlockContent();
-                } else {
-                    unlockAttempts++;
-                    
-                    errorMsg.style.display = 'block';
-                    errorMsg.textContent = `Incorrect password (Attempts: ${unlockAttempts}/${MAX_ATTEMPTS})`;
-                    
-                    const inputElement = document.getElementById('passwordInput');
-                    inputElement.style.animation = 'shake 0.5s';
-                    setTimeout(() => inputElement.style.animation = '', 500);
-                    
-                    inputElement.value = '';
-                    
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = 'Please wait...';
-                    setTimeout(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = 'Unlock Content / 解锁内容';
-                    }, 1000);
-                    
-                    if (unlockAttempts >= MAX_ATTEMPTS) {
-                        lockPermanently();
-                    }
-                    
-                    // 提供不同级别的提示
-                    if (unlockAttempts === 2) {
-                        errorMsg.innerHTML += `<br>💡 Hint: Contains "学友哥" and "Vivi姐"`;
-                    } else if (unlockAttempts === 3) {
-                        errorMsg.innerHTML += `<br>💡 Hint: Complete phrase is "祝学友哥与Vivi姐永世幸福"`;
-                    }
-                }
-            };
-            
-            // 锁定页面
-            function lockPermanently() {
+                }, true);
+                document.addEventListener('contextmenu', (e) => { if (e.target.id !== 'passwordInput') e.preventDefault(); });
+            },
+            违规(key) {
+                securityViolations++;
+                document.getElementById('keyboardWatcher').style.display = 'block';
+                document.getElementById('keyboardWatcher').textContent = `已拦截: ${key}`;
+                setTimeout(() => document.getElementById('keyboardWatcher').style.display = 'none', 2000);
+                if (securityViolations >= MAX_VIOLATIONS) this.永久锁定();
+            },
+            永久锁定() {
                 securityLocked = true;
-                document.body.innerHTML = `
-                    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; color: #ff4757; text-align: center; padding: 2rem;">
-                        <div>
-                            <h1 style="font-size: 48px; margin-bottom: 2rem;">🔒 Permanently Locked</h1>
-                            <p style="font-size: 18px; margin-bottom: 1rem;">Multiple password attempts failed</p>
-                            <p style="color: #6c757d;">Page has been permanently locked, please revisit</p>
-                        </div>
+                document.getElementById('protectedScreen').innerHTML = `
+                    <div class="title">🔒 安全锁定</div>
+                    <div style="margin:2rem;padding:2rem;background:rgba(255,71,87,0.1);border-radius:20px;">
+                        <p>多次违规操作，页面已锁定</p>
+                        <p>请刷新页面重试</p>
                     </div>
                 `;
             }
-            
-            // 解锁内容 - 修复版
-            function unlockContent() {
-                contentUnlocked = true;
-                document.getElementById('protectedScreen').style.display = 'none';
-                
-                // 停止防调试保护
-                antiDebug.stopProtection();
-                
-                // 显示所有隐藏的内容
-                document.querySelectorAll('.container, .bigbang-trigger, .cycle-counter, .music-player, .chakra-point, .rinnegan-eye, .sharingan-eye, .byakugan-eye').forEach(el => {
-                    el.style.display = 'block';
-                });
-                
-                // 显示成功消息
-                showUnlockMessage();
-                
-                // 自动播放音乐（修复音乐播放问题）
-                setTimeout(() => {
-                    try {
-                        const music = document.getElementById('backgroundMusic');
-                        if (music) {
-                            music.play().then(() => {
-                                console.log("🎵 Music auto-playing after unlock");
-                                document.getElementById('playPauseBtn').innerHTML = '⏸️';
-                                document.getElementById('playPauseBtn').title = 'Pause / 暂停';
-                            }).catch(e => {
-                                console.log("⚠️ Auto-play prevented, user interaction required");
-                            });
-                        }
-                    } catch (e) {
-                        console.error("Music play error:", e);
-                    }
-                }, 500);
-            }
-            
-            // 显示解锁消息
-            function showUnlockMessage() {
-                const unlockDiv = document.createElement('div');
-                unlockDiv.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: rgba(0, 0, 0, 0.95);
-                    padding: 3rem;
-                    border-radius: 20px;
-                    border: 3px solid #2ed573;
-                    text-align: center;
-                    z-index: 10000;
-                    box-shadow: 0 0 50px rgba(46, 213, 115, 0.5);
-                    animation: unlockFadeIn 0.5s ease;
-                `;
-                unlockDiv.innerHTML = `
-                    <div style="font-size: 36px; margin-bottom: 1rem;">🎉 Unlock Successful!</div>
-                    <div style="font-size: 20px; color: #2ed573; margin-bottom: 2rem;">💖 Wish Xueyou Ge and Vivi Jie eternal happiness</div>
-                    <div style="color: #6c757d; margin-bottom: 1rem;">🌌 Reincarnation Love System Activated</div>
-                    <div style="color: #ffa502;">👁️ Three Dojutsu Powers Manifested</div>
-                `;
-                document.body.appendChild(unlockDiv);
-                
-                setTimeout(() => {
-                    unlockDiv.style.opacity = '0';
-                    unlockDiv.style.transform = 'translate(-50%, -50%) scale(0.9)';
-                    setTimeout(() => unlockDiv.remove(), 500);
-                }, 3000);
-            }
-            
-            // 检查回车键
-            window.checkEnter = function(event) {
-                if (event.key === 'Enter') {
-                    checkPassword();
-                }
-            };
-            
-            // 初始化安全系统
-            function initSecurity() {
-                // 启动键盘保护
-                keyProtection.init();
-                
-                // 启动防保存
-                saveProtection.init();
-                
-                // 启动防调试保护
-                antiDebug.startProtection();
-                
-                // 隐藏源代码中的密码信息
-                console.clear();
-                
-                // 添加虚假控制台信息
-                setTimeout(() => {
-                    console.log("%c⚠️  Warning: This page is security protected", "color: #ff4757; font-size: 16px; font-weight: bold;");
-                    console.log("%c🚫  Do not attempt to crack or view source code", "color: #ff6b6b; font-size: 14px;");
-                    console.log("%c🔒  All content is encrypted and protected", "color: #6c757d; font-size: 12px;");
+        };
+
+        // ========== 防调试 ==========
+        const 反调试 = {
+            timer: null,
+            start() {
+                this.timer = setInterval(() => {
+                    const start = performance.now();
+                    debugger;
+                    if (performance.now() - start > 100) this.检测到调试();
                 }, 1000);
-            }
-            
-            // 页面加载完成后初始化
-            document.addEventListener('DOMContentLoaded', initSecurity);
-            
-            // 防止通过iframe嵌入
-            if (window.self !== window.top) {
-                window.top.location = window.self.location;
-            }
-            
-            // 防止后退按钮
-            history.pushState(null, null, location.href);
-            window.onpopstate = function(event) {
-                history.go(1);
-            };
-        })();
+            },
+            检测到调试() {
+                document.getElementById('antiInspect').style.display = 'flex';
+                this.stop();
+            },
+            stop() { clearInterval(this.timer); }
+        };
 
-        // ==================== 轮回系统核心 ====================
-        class 轮回系统 {
-            constructor() {
-                this.当前纪元 = 0;
-                this.轮回次数 = 0;
-                this.轮回周期 = 27;
-                this.下次大事件 = new Date().getFullYear() + this.轮回周期;
+        // ========== 密码检查 ==========
+        window.checkPassword = function() {
+            if (securityLocked) return alert('页面已锁定，请刷新');
+            const input = document.getElementById('passwordInput').value.trim();
+            const err = document.getElementById('errorMessage');
+            if (密码系统.加密(input) === 加密密码) {
+                解锁内容();
+            } else {
+                unlockAttempts++;
+                err.style.display = 'block';
+                err.textContent = `密码错误 (尝试 ${unlockAttempts}/${MAX_ATTEMPTS})`;
+                document.getElementById('passwordInput').style.animation = 'shake 0.4s';
+                setTimeout(() => document.getElementById('passwordInput').style.animation = '', 400);
+                if (unlockAttempts >= MAX_ATTEMPTS) 键盘防护.永久锁定();
             }
+        };
+
+        window.checkEnter = function(e) { if (e.key === 'Enter') checkPassword(); };
+
+        function 解锁内容() {
+            contentUnlocked = true;
+            document.getElementById('protectedScreen').style.display = 'none';
+            反调试.stop();
+            document.querySelectorAll('.container, .bigbang-trigger, .cycle-counter, .music-player, .chakra-point, .eye-container').forEach(el => el.style.display = 'block');
+            显示解锁消息();
+            setTimeout(() => {
+                const music = document.getElementById('backgroundMusic');
+                music.play().then(() => {
+                    document.getElementById('playPauseBtn').innerHTML = '⏸️';
+                }).catch(() => {});
+            }, 500);
+        }
+
+        function 显示解锁消息() {
+            const div = document.createElement('div');
+            div.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.95);padding:3rem;border-radius:40px;border:3px solid #2ed573;text-align:center;z-index:10000;box-shadow:0 0 100px #2ed573;animation:fadeInUp 0.5s;';
+            div.innerHTML = '<h2 style="color:#2ed573;font-size:2.5rem;">🎉 解锁成功！</h2><p style="margin:1rem 0;color:#fff;font-size:1.5rem;">祝学友哥与Vivi姐永世幸福</p><p style="color:#aaa;">轮回之爱系统启动</p>';
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        // ========== 轮回系统 ==========
+        const 轮回系统 = {
+            次数: 0,
             宇宙重启() {
-                this.轮回次数++;
-                this.当前纪元++;
+                this.次数++;
+                document.getElementById('currentCycle').textContent = this.次数;
                 触发大爆炸视觉效果();
-                更新轮回显示();
                 增强瞳术特效();
-                console.log(`💥 Universe Big Bang #${this.轮回次数} occurs!`);
-                console.log(`🔄 Entering Epoch ${this.当前纪元}`);
-                return `第${this.轮回次数}次轮回开始 - 纪元${this.当前纪元}`;
             }
-            检查自然轮回() {
-                const 当前时间 = new Date();
-                return (当前时间.getMonth() + 1 === 6) && (当前时间.getDate() === 7);
-            }
-        }
-        const 轮回 = new 轮回系统();
+        };
 
-        // ==================== 瞳术增强函数 ====================
-        function 增强瞳术特效() {
-            const eyes = document.querySelectorAll('.rinnegan-eye, .sharingan-eye, .byakugan-eye');
-            eyes.forEach(eye => {
-                eye.style.opacity = '0.6';
-                eye.style.filter = 'drop-shadow(0 0 30px currentColor)';
-                setTimeout(() => {
-                    eye.style.opacity = '0.35';
-                    eye.style.filter = 'drop-shadow(0 0 15px currentColor)';
-                }, 3000);
-            });
-        }
+        window.triggerBigBang = function() {
+            if (!contentUnlocked) return alert('请先解锁内容！');
+            轮回系统.宇宙重启();
+        };
 
-        // ==================== 视觉效果函数 ====================
         function 触发大爆炸视觉效果() {
-            const bigBang = document.getElementById('bigBang');
-            bigBang.classList.remove('active');
-            void bigBang.offsetWidth;
-            bigBang.classList.add('active');
-            document.body.style.animation = 'none';
-            setTimeout(() => { document.body.style.animation = 'shake 0.5s'; }, 10);
+            const bang = document.getElementById('bigBang');
+            bang.classList.remove('active');
+            void bang.offsetWidth;
+            bang.classList.add('active');
             触发查克拉波动();
             更新星空();
         }
 
-        function createStars() {
+        function 增强瞳术特效() {
+            document.querySelectorAll('.eye-container').forEach(el => {
+                el.style.animation = 'none';
+                el.offsetHeight;
+                el.style.animation = 'eye-float 6s infinite alternate';
+            });
+        }
+
+        // ========== 星空 ==========
+        function 创建星星() {
             const universe = document.getElementById('universe');
             universe.innerHTML = '';
-            for (let i = 0; i < 250; i++) {
+            for (let i = 0; i < 300; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 star.style.left = Math.random() * 100 + '%';
                 star.style.top = Math.random() * 100 + '%';
-                star.style.width = Math.random() * 4 + 'px';
+                star.style.width = Math.random() * 3 + 'px';
                 star.style.height = star.style.width;
-                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+                star.style.setProperty('--opacity', Math.random() * 0.8 + 0.2);
                 universe.appendChild(star);
             }
         }
-
-        function 更新星空() {
-            const universe = document.getElementById('universe');
-            universe.innerHTML = '';
-            createStars();
-        }
+        function 更新星空() { 创建星星(); }
 
         function 触发查克拉波动() {
-            const points = document.querySelectorAll('.chakra-point');
-            points.forEach(point => {
-                point.style.animation = 'none';
-                setTimeout(() => point.style.animation = 'chakraGlow 2s infinite', 10);
+            document.querySelectorAll('.chakra-point').forEach(p => {
+                p.style.animation = 'none';
+                p.offsetHeight;
+                p.style.animation = 'chakra-pulse 2s infinite';
             });
         }
 
-        function 更新轮回显示() {
-            document.getElementById('currentCycle').textContent = 轮回.轮回次数;
-        }
-
-        function triggerBigBang() {
-            if (!contentUnlocked) {
-                alert('Please unlock the content first! / 请先解锁内容！');
-                return;
-            }
-            轮回.宇宙重启();
-        }
-
-        // ==================== 音乐播放器功能 ====================
+        // ========== 音乐播放器 ==========
         const music = document.getElementById('backgroundMusic');
         const playPauseBtn = document.getElementById('playPauseBtn');
         const progressBar = document.getElementById('progressBar');
@@ -1663,8 +1005,6 @@
         const lyricsContainer = document.getElementById('lyricsContainer');
         const currentLyric = document.getElementById('currentLyric');
         const nextLyric = document.getElementById('nextLyric');
-        const musicPlayer = document.getElementById('musicPlayer');
-        const dragHandle = document.getElementById('dragHandle');
 
         const lyrics = [
             { time: 9, text: "等不到你 成为我最闪亮的星星" },
@@ -1677,84 +1017,39 @@
             { time: 65, text: "一闪一闪亮晶晶 好像你的身体" },
             { time: 72, text: "藏在众多孤星之中 还是找得到你" },
             { time: 79, text: "挂在天上放光明 反射我的孤寂" },
-            { time: 86, text: "提醒我 我也只是一颗寂寞的星星" },
-            { time: 100, text: "浩瀚的世界里 更迭的人海里" },
-            { time: 107, text: "和你互相辉映 让我们延续" },
-            { time: 114, text: "用尽所有思念 唱一首歌给你" },
-            { time: 121, text: "给你 一闪一闪亮晶晶" },
-            { time: 128, text: "好像你的身体 藏在众多孤星之中" },
-            { time: 135, text: "还是找得到你 挂在天上放光明" },
-            { time: 142, text: "反射我的过去 提醒我" },
-            { time: 149, text: "我不再是一颗寂寞的星星" },
-            { time: 180, text: "等不到你 成为我最闪亮的星星" },
-            { time: 187, text: "我依然愿意借给你我的光" },
-            { time: 194, text: "投射给你 直到你那灿烂的光芒" },
-            { time: 201, text: "静静地挂在遥远的天上" },
-            { time: 208, text: "当你沉浸 天空那条冰冷的银河" },
-            { time: 215, text: "隐没在宇宙深处 我正穿越" },
-            { time: 222, text: "茫茫人海 为你点亮 一盏温暖的灯火" }
+            { time: 86, text: "提醒我 我也只是一颗寂寞的星星" }
         ];
 
         let currentLyricIndex = -1;
         let lyricsVisible = false;
 
-        function playPause() {
-            if (!contentUnlocked) {
-                alert('Please unlock the content first! / 请先解锁内容！');
-                return;
-            }
-            
+        window.playPause = function() {
+            if (!contentUnlocked) return alert('请先解锁内容');
             if (music.paused) {
-                music.play().then(() => {
-                    playPauseBtn.innerHTML = '⏸️';
-                    playPauseBtn.title = 'Pause / 暂停';
-                }).catch(e => {
-                    console.log('Playback failed, user interaction may be required');
-                    alert('Click the play button again to start music / 请再次点击播放按钮开始音乐');
-                });
+                music.play().then(() => playPauseBtn.innerHTML = '⏸️');
             } else {
                 music.pause();
                 playPauseBtn.innerHTML = '▶️';
-                playPauseBtn.title = 'Play / 播放';
             }
-        }
-
-        function skipForward() {
-            if (!contentUnlocked) return;
-            music.currentTime = Math.min(music.duration, music.currentTime + 15);
-            updateProgress();
-        }
-
-        function skipBackward() {
-            if (!contentUnlocked) return;
-            music.currentTime = Math.max(0, music.currentTime - 15);
-            updateProgress();
-        }
-
-        function toggleLyrics() {
-            if (!contentUnlocked) {
-                alert('Please unlock the content first! / 请先解锁内容！');
-                return;
-            }
+        };
+        window.skipForward = () => { if(contentUnlocked) music.currentTime = Math.min(music.duration, music.currentTime + 15); };
+        window.skipBackward = () => { if(contentUnlocked) music.currentTime = Math.max(0, music.currentTime - 15); };
+        window.toggleLyrics = function() {
+            if (!contentUnlocked) return alert('请先解锁内容');
             lyricsVisible = !lyricsVisible;
             lyricsContainer.classList.toggle('show', lyricsVisible);
-        }
+        };
 
         function updateLyrics() {
             if (!contentUnlocked) return;
-            const currentTime = music.currentTime;
-            let newIndex = -1;
-            for (let i = lyrics.length - 1; i >= 0; i--) {
-                if (currentTime >= lyrics[i].time) {
-                    newIndex = i;
-                    break;
-                }
-            }
-            if (newIndex !== currentLyricIndex) {
-                currentLyricIndex = newIndex;
-                if (currentLyricIndex >= 0) {
-                    currentLyric.textContent = lyrics[currentLyricIndex].text;
-                    nextLyric.textContent = (currentLyricIndex < lyrics.length - 1) ? lyrics[currentLyricIndex + 1].text : '';
+            const t = music.currentTime;
+            let idx = -1;
+            for (let i = lyrics.length-1; i>=0; i--) if (t >= lyrics[i].time) { idx = i; break; }
+            if (idx !== currentLyricIndex) {
+                currentLyricIndex = idx;
+                if (idx >= 0) {
+                    currentLyric.textContent = lyrics[idx].text;
+                    nextLyric.textContent = lyrics[idx+1]?.text || '';
                     currentLyric.style.transform = 'scale(1.1)';
                     currentLyric.style.color = '#ff4757';
                     setTimeout(() => {
@@ -1762,7 +1057,7 @@
                         currentLyric.style.color = '#2ed573';
                     }, 300);
                 } else {
-                    currentLyric.textContent = 'Music starting soon...';
+                    currentLyric.textContent = '音乐即将开始...';
                     nextLyric.textContent = lyrics[0].text;
                 }
             }
@@ -1770,165 +1065,74 @@
 
         function updateProgress() {
             if (!contentUnlocked) return;
-            if (music.duration && !isNaN(music.duration)) {
-                const percent = (music.currentTime / music.duration) * 100;
-                progressBar.style.width = percent + '%';
-                progressHandle.style.left = percent + '%';
+            if (music.duration) {
+                const p = (music.currentTime / music.duration) * 100;
+                progressBar.style.width = p + '%';
+                progressHandle.style.left = p + '%';
                 currentTimeEl.textContent = formatTime(music.currentTime);
                 durationEl.textContent = formatTime(music.duration);
                 updateLyrics();
             }
         }
 
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return "0:00";
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        }
+        function formatTime(s) { const m = Math.floor(s/60); s = Math.floor(s%60); return `${m}:${s<10?'0'+s:s}`; }
 
-        function setupProgressBar() {
-            progressContainer.addEventListener('click', function(e) {
-                if (!contentUnlocked) return;
-                const rect = this.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                music.currentTime = percent * music.duration;
-                updateProgress();
-            });
-        }
-
-        volumeControl.addEventListener('input', function() {
+        progressContainer.addEventListener('click', (e) => {
             if (!contentUnlocked) return;
-            music.volume = this.value;
-            volumeValue.textContent = Math.round(this.value * 100) + '%';
+            const rect = progressContainer.getBoundingClientRect();
+            music.currentTime = ((e.clientX - rect.left) / rect.width) * music.duration;
         });
 
-        // ==================== 播放器拖拽功能 ====================
+        volumeControl.addEventListener('input', () => {
+            music.volume = volumeControl.value;
+            volumeValue.textContent = Math.round(volumeControl.value * 100) + '%';
+        });
+
+        // ========== 播放器拖拽 ==========
         let isDragging = false;
-        let dragOffset = { x: 0, y: 0 };
-        let startPos = { x: 0, y: 0 };
+        let offset = { x:0, y:0 };
+        const player = document.getElementById('musicPlayer');
+        const handle = document.getElementById('dragHandle');
 
-        function startDrag(e) {
+        handle.addEventListener('mousedown', (e) => {
             if (!contentUnlocked) return;
-            
-            if (e.type === 'mousedown' && e.button !== 0) return;
-            
             isDragging = true;
-            musicPlayer.classList.add('dragging');
-            
-            const rect = musicPlayer.getBoundingClientRect();
-            if (e.type === 'mousedown') {
-                dragOffset.x = e.clientX - rect.left;
-                dragOffset.y = e.clientY - rect.top;
-                startPos.x = e.clientX;
-                startPos.y = e.clientY;
-            } else if (e.type === 'touchstart') {
-                const touch = e.touches[0];
-                dragOffset.x = touch.clientX - rect.left;
-                dragOffset.y = touch.clientY - rect.top;
-                startPos.x = touch.clientX;
-                startPos.y = touch.clientY;
-            }
-            
-            e.preventDefault();
-        }
+            player.classList.add('dragging');
+            const rect = player.getBoundingClientRect();
+            offset.x = e.clientX - rect.left;
+            offset.y = e.clientY - rect.top;
+        });
 
-        function onDrag(e) {
+        document.addEventListener('mousemove', (e) => {
             if (!isDragging || !contentUnlocked) return;
-            
-            let clientX, clientY;
-            if (e.type === 'mousemove') {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            } else if (e.type === 'touchmove') {
-                const touch = e.touches[0];
-                clientX = touch.clientX;
-                clientY = touch.clientY;
-            }
-            
-            let newX = clientX - dragOffset.x;
-            let newY = clientY - dragOffset.y;
-            
-            const maxX = window.innerWidth - musicPlayer.offsetWidth;
-            const maxY = window.innerHeight - musicPlayer.offsetHeight;
-            
-            newX = Math.max(0, Math.min(newX, maxX));
-            newY = Math.max(0, Math.min(newY, maxY));
-            
-            musicPlayer.style.left = newX + 'px';
-            musicPlayer.style.top = newY + 'px';
-            musicPlayer.style.transform = 'none';
-            
-            e.preventDefault();
-        }
+            let x = e.clientX - offset.x;
+            let y = e.clientY - offset.y;
+            x = Math.max(0, Math.min(x, window.innerWidth - player.offsetWidth));
+            y = Math.max(0, Math.min(y, window.innerHeight - player.offsetHeight));
+            player.style.left = x + 'px';
+            player.style.top = y + 'px';
+            player.style.transform = 'none';
+        });
 
-        function endDrag(e) {
-            if (!isDragging) return;
-            
+        document.addEventListener('mouseup', () => {
+            if (isDragging) player.classList.remove('dragging');
             isDragging = false;
-            musicPlayer.classList.remove('dragging');
-            
-            const endPos = e.type === 'mouseup' ? 
-                { x: e.clientX, y: e.clientY } : 
-                { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
-            
-            const distance = Math.sqrt(
-                Math.pow(endPos.x - startPos.x, 2) + 
-                Math.pow(endPos.y - startPos.y, 2)
-            );
-            
-            if (distance < 5) {
-                musicPlayer.style.transform = 'translateX(-50%)';
-            }
-        }
+        });
 
-        // 鼠标事件
-        dragHandle.addEventListener('mousedown', startDrag);
-        document.addEventListener('mousemove', onDrag);
-        document.addEventListener('mouseup', endDrag);
-
-        // 触摸事件
-        dragHandle.addEventListener('touchstart', startDrag, { passive: false });
-        document.addEventListener('touchmove', onDrag, { passive: false });
-        document.addEventListener('touchend', endDrag);
-
-        // ==================== 初始化设置 ====================
-        document.addEventListener('DOMContentLoaded', function() {
-            createStars();
-            更新轮回显示();
-            setupProgressBar();
-
+        // ========== 初始化 ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            创建星星();
+            键盘防护.init();
+            反调试.start();
             music.addEventListener('timeupdate', updateProgress);
-            music.addEventListener('loadedmetadata', function() {
-                durationEl.textContent = formatTime(music.duration);
-            });
-            music.addEventListener('ended', function() {
-                if (!contentUnlocked) return;
-                playPauseBtn.innerHTML = '▶️';
-                playPauseBtn.title = 'Play / 播放';
-            });
-
+            music.addEventListener('loadedmetadata', () => durationEl.textContent = formatTime(music.duration));
+            music.addEventListener('ended', () => playPauseBtn.innerHTML = '▶️');
             music.volume = volumeControl.value;
 
-            // 演示模式自动循环
+            // 演示轮回
             setInterval(() => {
-                if (contentUnlocked && !securityLocked && Math.random() < 0.1) {
-                    console.log("🔮 Demo mode: Triggering reincarnation");
-                    轮回.宇宙重启();
-                }
+                if (contentUnlocked && Math.random() < 0.1) 轮回系统.宇宙重启();
             }, 27000);
-
-            setInterval(() => {
-                if (contentUnlocked && !securityLocked && Math.random() < 0.01) {
-                    触发查克拉波动();
-                }
-            }, 1000);
-
-            console.log(`%c
-             🌀 Reincarnation Love System Activated
-             👁️ Rinnegan, Sharingan, Byakugan Ready
-             🔒 Please enter password to unlock content
-            `, 'color: #ff4757; font-size: 14px; font-weight: bold;');
         });
     </script>
 </body>
