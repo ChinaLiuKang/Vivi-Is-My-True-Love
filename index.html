@@ -356,6 +356,18 @@
             50% { opacity: 1; transform: scale(1.5); }
         }
 
+        /* ========== 宇宙特效 Canvas ========== */
+        #cosmicCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            display: none;
+        }
+
         /* ========== 音乐播放器（玻璃态） ========== */
         .music-player {
             position: fixed;
@@ -683,6 +695,9 @@
     <!-- 宇宙背景 -->
     <div class="universe" id="universe"></div>
 
+    <!-- 宇宙特效 Canvas -->
+    <canvas id="cosmicCanvas"></canvas>
+
     <!-- 音乐播放器 -->
     <div class="music-player" id="musicPlayer">
         <div class="music-header" id="dragHandle">
@@ -916,6 +931,9 @@
             document.getElementById('protectedScreen').style.display = 'none';
             反调试.stop();
             document.querySelectorAll('.container, .bigbang-trigger, .cycle-counter, .music-player, .chakra-point, .eye-container').forEach(el => el.style.display = 'block');
+            // 显示宇宙特效
+            document.getElementById('cosmicCanvas').style.display = 'block';
+            initCosmicEffects(); // 启动画布特效
             显示解锁消息();
             setTimeout(() => {
                 const music = document.getElementById('backgroundMusic');
@@ -990,6 +1008,171 @@
                 p.offsetHeight;
                 p.style.animation = 'chakra-pulse 2s infinite';
             });
+        }
+
+        // ========== 宇宙特效（黑洞、流星、星云） ==========
+        let cosmicAnimId = null;
+        let meteors = [];
+        let blackHoleAngle = 0;
+
+        function initCosmicEffects() {
+            const canvas = document.getElementById('cosmicCanvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            // 流星生成器
+            function spawnMeteor() {
+                const x = Math.random() * width;
+                const y = Math.random() * height * 0.4;
+                const angle = Math.PI / 4 + (Math.random() - 0.5) * 0.6;
+                const speed = 8 + Math.random() * 12;
+                const length = 60 + Math.random() * 120;
+                meteors.push({
+                    x, y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    length: length,
+                    life: 1.0,
+                    decay: 0.003 + Math.random() * 0.006
+                });
+            }
+
+            // 周期性生成流星
+            let meteorTimer = 0;
+            const METEOR_INTERVAL = 40; // frames
+
+            function draw() {
+                if (!contentUnlocked) return;
+                ctx.clearRect(0, 0, width, height);
+
+                // ---- 1. 星云（半透明彩色光晕） ----
+                ctx.save();
+                const gradient = ctx.createRadialGradient(width*0.7, height*0.2, 10, width*0.7, height*0.2, 400);
+                gradient.addColorStop(0, 'rgba(180, 70, 200, 0.08)');
+                gradient.addColorStop(0.5, 'rgba(70, 130, 200, 0.05)');
+                gradient.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+
+                const gradient2 = ctx.createRadialGradient(width*0.2, height*0.8, 10, width*0.2, height*0.8, 350);
+                gradient2.addColorStop(0, 'rgba(255, 100, 80, 0.06)');
+                gradient2.addColorStop(0.5, 'rgba(200, 150, 50, 0.04)');
+                gradient2.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = gradient2;
+                ctx.fillRect(0, 0, width, height);
+                ctx.restore();
+
+                // ---- 2. 黑洞（吸积盘 + 阴影） ----
+                const bhX = width * 0.25;
+                const bhY = height * 0.4;
+                const bhRadius = 70;
+                blackHoleAngle += 0.005;
+
+                ctx.save();
+                ctx.translate(bhX, bhY);
+
+                // 吸积盘（多层旋转椭圆环）
+                for (let r = bhRadius + 10; r < bhRadius + 140; r += 12) {
+                    const alpha = 0.15 + 0.25 * (1 - (r - bhRadius) / 140);
+                    const hue = (30 + (r - bhRadius) * 0.8) % 360;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, r, r * 0.35, blackHoleAngle + r * 0.01, 0, Math.PI * 2);
+                    ctx.strokeStyle = `hsla(${hue}, 100%, 60%, ${alpha})`;
+                    ctx.lineWidth = 3 + (r - bhRadius) / 30;
+                    ctx.shadowColor = `hsla(${hue}, 100%, 60%, 0.5)`;
+                    ctx.shadowBlur = 20;
+                    ctx.stroke();
+                }
+                // 内圈更亮
+                for (let r = bhRadius - 10; r < bhRadius + 30; r += 6) {
+                    const alpha = 0.3 + 0.3 * (1 - (r - (bhRadius - 10)) / 40);
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, r, r * 0.25, blackHoleAngle * 1.5 + r * 0.02, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(255, 255, 200, ${alpha})`;
+                    ctx.lineWidth = 2;
+                    ctx.shadowBlur = 30;
+                    ctx.shadowColor = 'rgba(255,200,100,0.8)';
+                    ctx.stroke();
+                }
+                // 事件视界（黑色圆）
+                const grd = ctx.createRadialGradient(0, 0, 5, 0, 0, bhRadius);
+                grd.addColorStop(0, '#000');
+                grd.addColorStop(0.7, '#0a0a0a');
+                grd.addColorStop(1, 'rgba(20,20,30,0.8)');
+                ctx.beginPath();
+                ctx.arc(0, 0, bhRadius, 0, Math.PI * 2);
+                ctx.fillStyle = grd;
+                ctx.shadowBlur = 50;
+                ctx.shadowColor = 'rgba(255,100,50,0.3)';
+                ctx.fill();
+                ctx.restore();
+
+                // ---- 3. 流星 ----
+                meteorTimer++;
+                if (meteorTimer % METEOR_INTERVAL === 0 && Math.random() < 0.7) {
+                    spawnMeteor();
+                }
+                // 更新和绘制
+                for (let i = meteors.length - 1; i >= 0; i--) {
+                    const m = meteors[i];
+                    m.x += m.vx;
+                    m.y += m.vy;
+                    m.life -= m.decay;
+                    if (m.life <= 0 || m.x > width || m.y > height) {
+                        meteors.splice(i, 1);
+                        continue;
+                    }
+                    // 绘制流星（带尾迹）
+                    ctx.save();
+                    const grad = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * 5, m.y - m.vy * 5);
+                    grad.addColorStop(0, `rgba(255, 255, 255, ${m.life})`);
+                    grad.addColorStop(0.3, `rgba(255, 220, 180, ${m.life * 0.8})`);
+                    grad.addColorStop(1, `rgba(255, 150, 100, 0)`);
+                    ctx.beginPath();
+                    ctx.moveTo(m.x, m.y);
+                    ctx.lineTo(m.x - m.vx * 5, m.y - m.vy * 5);
+                    ctx.strokeStyle = grad;
+                    ctx.lineWidth = 2 + m.life * 2;
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = `rgba(255,200,150,${m.life*0.5})`;
+                    ctx.stroke();
+                    // 头部亮星
+                    ctx.beginPath();
+                    ctx.arc(m.x, m.y, 2 + m.life, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${m.life})`;
+                    ctx.shadowBlur = 30;
+                    ctx.shadowColor = '#fff';
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // ---- 4. 偶尔的粒子流（飘渺星点） ----
+                ctx.save();
+                for (let i = 0; i < 30; i++) {
+                    const x = (Math.sin(Date.now() / 10000 + i * 2.3) * 0.5 + 0.5) * width;
+                    const y = (Math.cos(Date.now() / 12000 + i * 1.7) * 0.5 + 0.5) * height;
+                    const size = 1 + Math.sin(Date.now() / 3000 + i) * 0.5;
+                    const alpha = 0.1 + 0.2 * (Math.sin(Date.now() / 4000 + i * 1.3) * 0.5 + 0.5);
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(200, 220, 255, ${alpha})`;
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = `rgba(100, 150, 255, ${alpha*0.5})`;
+                    ctx.fill();
+                }
+                ctx.restore();
+
+                cosmicAnimId = requestAnimationFrame(draw);
+            }
+
+            draw();
         }
 
         // ========== 音乐播放器 ==========
@@ -1088,36 +1271,69 @@
             volumeValue.textContent = Math.round(volumeControl.value * 100) + '%';
         });
 
-        // ========== 播放器拖拽 ==========
+        // ========== 播放器拖拽（鼠标 + 触屏通用，固定尺寸） ==========
         let isDragging = false;
         let offset = { x:0, y:0 };
         const player = document.getElementById('musicPlayer');
-        const handle = document.getElementById('dragHandle');
+        const dragHandle = document.getElementById('dragHandle');
 
-        handle.addEventListener('mousedown', (e) => {
+        function getPointerPos(e) {
+            if (e.touches && e.touches.length > 0) {
+                return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+            }
+            return { clientX: e.clientX, clientY: e.clientY };
+        }
+
+        function startDrag(e) {
             if (!contentUnlocked) return;
+            if (e.type === 'touchstart') e.preventDefault();
+            const target = e.target;
+            if (target.closest('button') || target.closest('.control-btn') || target.closest('.progress-container')) return;
             isDragging = true;
             player.classList.add('dragging');
             const rect = player.getBoundingClientRect();
-            offset.x = e.clientX - rect.left;
-            offset.y = e.clientY - rect.top;
-        });
+            player.style.width = rect.width + 'px';
+            player.style.height = rect.height + 'px';
+            const pos = getPointerPos(e);
+            offset.x = pos.clientX - rect.left;
+            offset.y = pos.clientY - rect.top;
+            if (!player.style.left || player.style.left === '') {
+                player.style.left = rect.left + 'px';
+                player.style.top = rect.top + 'px';
+                player.style.transform = 'none';
+            }
+        }
 
-        document.addEventListener('mousemove', (e) => {
+        function moveDrag(e) {
             if (!isDragging || !contentUnlocked) return;
-            let x = e.clientX - offset.x;
-            let y = e.clientY - offset.y;
-            x = Math.max(0, Math.min(x, window.innerWidth - player.offsetWidth));
-            y = Math.max(0, Math.min(y, window.innerHeight - player.offsetHeight));
+            e.preventDefault();
+            const pos = getPointerPos(e);
+            let x = pos.clientX - offset.x;
+            let y = pos.clientY - offset.y;
+            const maxX = window.innerWidth - player.offsetWidth;
+            const maxY = window.innerHeight - player.offsetHeight;
+            x = Math.max(0, Math.min(x, maxX));
+            y = Math.max(0, Math.min(y, maxY));
             player.style.left = x + 'px';
             player.style.top = y + 'px';
             player.style.transform = 'none';
-        });
+        }
 
-        document.addEventListener('mouseup', () => {
-            if (isDragging) player.classList.remove('dragging');
-            isDragging = false;
-        });
+        function endDrag(e) {
+            if (isDragging) {
+                isDragging = false;
+                player.classList.remove('dragging');
+            }
+        }
+
+        dragHandle.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', moveDrag);
+        document.addEventListener('mouseup', endDrag);
+
+        dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+        document.addEventListener('touchmove', moveDrag, { passive: false });
+        document.addEventListener('touchend', endDrag);
+        document.addEventListener('touchcancel', endDrag);
 
         // ========== 初始化 ==========
         document.addEventListener('DOMContentLoaded', () => {
@@ -1129,7 +1345,6 @@
             music.addEventListener('ended', () => playPauseBtn.innerHTML = '▶️');
             music.volume = volumeControl.value;
 
-            // 演示轮回
             setInterval(() => {
                 if (contentUnlocked && Math.random() < 0.1) 轮回系统.宇宙重启();
             }, 27000);
