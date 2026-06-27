@@ -489,27 +489,28 @@
             outline: none;
         }
 
-        /* ========== 歌词窗口 ========== */
+        /* ========== 歌词窗口（优化） ========== */
         .lyrics-container {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(20px);
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(25px);
             border: 2px solid var(--primary);
             border-radius: 30px;
             padding: 2.5rem;
-            max-width: 80%;
+            max-width: 85%;
+            width: 400px;
             text-align: center;
-            z-index: 101;
+            z-index: 9999;   /* 提高层级 */
             box-shadow: 0 0 80px var(--primary);
-            display: none;
+            display: none;   /* 默认隐藏，由JS控制 */
+            animation: fadeInUp 0.4s ease;
         }
 
         .lyrics-container.show {
             display: block;
-            animation: fadeInUp 0.5s;
         }
 
         @keyframes fadeInUp {
@@ -518,28 +519,33 @@
         }
 
         .current-lyric {
-            font-size: 2rem;
+            font-size: 1.8rem;
             color: var(--accent);
             margin: 1rem 0;
-            min-height: 3rem;
+            min-height: 4rem;
             transition: 0.3s;
             text-shadow: var(--glow-accent);
+            word-break: break-word;
         }
 
         .next-lyric {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: #aaa;
+            word-break: break-word;
         }
 
         .lyrics-close {
             position: absolute;
-            top: 15px;
-            right: 20px;
+            top: 12px;
+            right: 18px;
             background: none;
             border: none;
             color: var(--primary);
-            font-size: 2rem;
+            font-size: 2.2rem;
             cursor: pointer;
+            padding: 0 6px;
+            line-height: 1;
+            z-index: 10000;
         }
 
         /* ========== 大爆炸按钮 ========== */
@@ -631,7 +637,8 @@
             .eye-container { transform: scale(0.6); }
             .container { padding: 1rem; }
             .code-display { font-size: 0.85rem; }
-            .current-lyric { font-size: 1.5rem; }
+            .current-lyric { font-size: 1.4rem; }
+            .lyrics-container { width: 90%; padding: 1.8rem; }
         }
 
         /* ========== 动画工具 ========== */
@@ -834,6 +841,10 @@
         const MAX_ATTEMPTS = 5;
         const MAX_VIOLATIONS = 3;
 
+        // ========== 歌词偏移调整（单位：秒） ==========
+        // 正值表示歌词显示延后，负值表示提前显示（推荐 -1.0 ~ -0.5 消除延迟）
+        const lyricsOffset = -1.0; // 提前 1 秒显示，可根据实际微调
+
         // ========== 密码加密系统（中文友好） ==========
         const 密码系统 = {
             片段: {
@@ -845,7 +856,7 @@
                 return text.split('').map(ch => String.fromCharCode(ch.charCodeAt(0) ^ 0x55)).join('');
             },
             解密(enc) {
-                return this.加密(enc); // XOR 自逆
+                return this.加密(enc);
             },
             获取真实密码() {
                 return this.片段.a + this.片段.b + this.片段.c;
@@ -931,9 +942,8 @@
             document.getElementById('protectedScreen').style.display = 'none';
             反调试.stop();
             document.querySelectorAll('.container, .bigbang-trigger, .cycle-counter, .music-player, .chakra-point, .eye-container').forEach(el => el.style.display = 'block');
-            // 显示宇宙特效
             document.getElementById('cosmicCanvas').style.display = 'block';
-            initCosmicEffects(); // 启动画布特效
+            initCosmicEffects();
             显示解锁消息();
             setTimeout(() => {
                 const music = document.getElementById('backgroundMusic');
@@ -1027,7 +1037,6 @@
             window.addEventListener('resize', resize);
             resize();
 
-            // 流星生成器
             function spawnMeteor() {
                 const x = Math.random() * width;
                 const y = Math.random() * height * 0.4;
@@ -1044,15 +1053,14 @@
                 });
             }
 
-            // 周期性生成流星
             let meteorTimer = 0;
-            const METEOR_INTERVAL = 40; // frames
+            const METEOR_INTERVAL = 40;
 
             function draw() {
                 if (!contentUnlocked) return;
                 ctx.clearRect(0, 0, width, height);
 
-                // ---- 1. 星云（半透明彩色光晕） ----
+                // 星云
                 ctx.save();
                 const gradient = ctx.createRadialGradient(width*0.7, height*0.2, 10, width*0.7, height*0.2, 400);
                 gradient.addColorStop(0, 'rgba(180, 70, 200, 0.08)');
@@ -1069,7 +1077,7 @@
                 ctx.fillRect(0, 0, width, height);
                 ctx.restore();
 
-                // ---- 2. 黑洞（吸积盘 + 阴影） ----
+                // 黑洞
                 const bhX = width * 0.25;
                 const bhY = height * 0.4;
                 const bhRadius = 70;
@@ -1077,8 +1085,6 @@
 
                 ctx.save();
                 ctx.translate(bhX, bhY);
-
-                // 吸积盘（多层旋转椭圆环）
                 for (let r = bhRadius + 10; r < bhRadius + 140; r += 12) {
                     const alpha = 0.15 + 0.25 * (1 - (r - bhRadius) / 140);
                     const hue = (30 + (r - bhRadius) * 0.8) % 360;
@@ -1090,7 +1096,6 @@
                     ctx.shadowBlur = 20;
                     ctx.stroke();
                 }
-                // 内圈更亮
                 for (let r = bhRadius - 10; r < bhRadius + 30; r += 6) {
                     const alpha = 0.3 + 0.3 * (1 - (r - (bhRadius - 10)) / 40);
                     ctx.beginPath();
@@ -1101,7 +1106,6 @@
                     ctx.shadowColor = 'rgba(255,200,100,0.8)';
                     ctx.stroke();
                 }
-                // 事件视界（黑色圆）
                 const grd = ctx.createRadialGradient(0, 0, 5, 0, 0, bhRadius);
                 grd.addColorStop(0, '#000');
                 grd.addColorStop(0.7, '#0a0a0a');
@@ -1114,22 +1118,15 @@
                 ctx.fill();
                 ctx.restore();
 
-                // ---- 3. 流星 ----
+                // 流星
                 meteorTimer++;
-                if (meteorTimer % METEOR_INTERVAL === 0 && Math.random() < 0.7) {
-                    spawnMeteor();
-                }
-                // 更新和绘制
+                if (meteorTimer % METEOR_INTERVAL === 0 && Math.random() < 0.7) spawnMeteor();
                 for (let i = meteors.length - 1; i >= 0; i--) {
                     const m = meteors[i];
                     m.x += m.vx;
                     m.y += m.vy;
                     m.life -= m.decay;
-                    if (m.life <= 0 || m.x > width || m.y > height) {
-                        meteors.splice(i, 1);
-                        continue;
-                    }
-                    // 绘制流星（带尾迹）
+                    if (m.life <= 0 || m.x > width || m.y > height) { meteors.splice(i, 1); continue; }
                     ctx.save();
                     const grad = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * 5, m.y - m.vy * 5);
                     grad.addColorStop(0, `rgba(255, 255, 255, ${m.life})`);
@@ -1143,7 +1140,6 @@
                     ctx.shadowBlur = 20;
                     ctx.shadowColor = `rgba(255,200,150,${m.life*0.5})`;
                     ctx.stroke();
-                    // 头部亮星
                     ctx.beginPath();
                     ctx.arc(m.x, m.y, 2 + m.life, 0, Math.PI * 2);
                     ctx.fillStyle = `rgba(255, 255, 255, ${m.life})`;
@@ -1153,7 +1149,7 @@
                     ctx.restore();
                 }
 
-                // ---- 4. 偶尔的粒子流（飘渺星点） ----
+                // 粒子流
                 ctx.save();
                 for (let i = 0; i < 30; i++) {
                     const x = (Math.sin(Date.now() / 10000 + i * 2.3) * 0.5 + 0.5) * width;
@@ -1171,7 +1167,6 @@
 
                 cosmicAnimId = requestAnimationFrame(draw);
             }
-
             draw();
         }
 
@@ -1189,6 +1184,7 @@
         const currentLyric = document.getElementById('currentLyric');
         const nextLyric = document.getElementById('nextLyric');
 
+        // 歌词时间戳（单位：秒）
         const lyrics = [
             { time: 9, text: "等不到你 成为我最闪亮的星星" },
             { time: 16, text: "我依然愿意借给你我的光" },
@@ -1206,34 +1202,44 @@
         let currentLyricIndex = -1;
         let lyricsVisible = false;
 
-        window.playPause = function() {
-            if (!contentUnlocked) return alert('请先解锁内容');
-            if (music.paused) {
-                music.play().then(() => playPauseBtn.innerHTML = '⏸️');
-            } else {
-                music.pause();
-                playPauseBtn.innerHTML = '▶️';
-            }
-        };
-        window.skipForward = () => { if(contentUnlocked) music.currentTime = Math.min(music.duration, music.currentTime + 15); };
-        window.skipBackward = () => { if(contentUnlocked) music.currentTime = Math.max(0, music.currentTime - 15); };
+        // 歌词显示/隐藏（使用 style.display 确保可靠）
         window.toggleLyrics = function() {
             if (!contentUnlocked) return alert('请先解锁内容');
             lyricsVisible = !lyricsVisible;
-            lyricsContainer.classList.toggle('show', lyricsVisible);
+            if (lyricsVisible) {
+                lyricsContainer.style.display = 'block';
+                // 重新触发动画
+                lyricsContainer.style.animation = 'none';
+                void lyricsContainer.offsetWidth;
+                lyricsContainer.style.animation = 'fadeInUp 0.4s ease';
+                // 更新当前歌词
+                updateLyrics();
+            } else {
+                lyricsContainer.style.display = 'none';
+            }
         };
+
+        // 点击外部关闭（可选）
+        document.addEventListener('click', function(e) {
+            if (lyricsVisible && !lyricsContainer.contains(e.target) && e.target.id !== 'lyricsToggleBtn') {
+                // 如果点击不是歌词内部且不是歌词按钮，可以关闭，但为了不干扰操作，暂时不自动关闭
+            }
+        });
 
         function updateLyrics() {
             if (!contentUnlocked) return;
-            const t = music.currentTime;
+            const t = music.currentTime + lyricsOffset; // 应用偏移
             let idx = -1;
-            for (let i = lyrics.length-1; i>=0; i--) if (t >= lyrics[i].time) { idx = i; break; }
+            for (let i = lyrics.length - 1; i >= 0; i--) {
+                if (t >= lyrics[i].time) { idx = i; break; }
+            }
             if (idx !== currentLyricIndex) {
                 currentLyricIndex = idx;
                 if (idx >= 0) {
                     currentLyric.textContent = lyrics[idx].text;
-                    nextLyric.textContent = lyrics[idx+1]?.text || '';
-                    currentLyric.style.transform = 'scale(1.1)';
+                    nextLyric.textContent = lyrics[idx + 1]?.text || '';
+                    // 歌词切换动画
+                    currentLyric.style.transform = 'scale(1.2)';
                     currentLyric.style.color = '#ff4757';
                     setTimeout(() => {
                         currentLyric.style.transform = 'scale(1)';
@@ -1241,7 +1247,7 @@
                     }, 300);
                 } else {
                     currentLyric.textContent = '音乐即将开始...';
-                    nextLyric.textContent = lyrics[0].text;
+                    nextLyric.textContent = lyrics[0]?.text || '';
                 }
             }
         }
@@ -1254,11 +1260,31 @@
                 progressHandle.style.left = p + '%';
                 currentTimeEl.textContent = formatTime(music.currentTime);
                 durationEl.textContent = formatTime(music.duration);
-                updateLyrics();
+                // 仅当歌词窗口可见时更新
+                if (lyricsVisible) {
+                    updateLyrics();
+                }
             }
         }
 
-        function formatTime(s) { const m = Math.floor(s/60); s = Math.floor(s%60); return `${m}:${s<10?'0'+s:s}`; }
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            s = Math.floor(s % 60);
+            return `${m}:${s < 10 ? '0' + s : s}`;
+        }
+
+        // 播放控制
+        window.playPause = function() {
+            if (!contentUnlocked) return alert('请先解锁内容');
+            if (music.paused) {
+                music.play().then(() => playPauseBtn.innerHTML = '⏸️');
+            } else {
+                music.pause();
+                playPauseBtn.innerHTML = '▶️';
+            }
+        };
+        window.skipForward = () => { if (contentUnlocked) music.currentTime = Math.min(music.duration, music.currentTime + 15); };
+        window.skipBackward = () => { if (contentUnlocked) music.currentTime = Math.max(0, music.currentTime - 15); };
 
         progressContainer.addEventListener('click', (e) => {
             if (!contentUnlocked) return;
@@ -1271,9 +1297,9 @@
             volumeValue.textContent = Math.round(volumeControl.value * 100) + '%';
         });
 
-        // ========== 播放器拖拽（鼠标 + 触屏通用，固定尺寸） ==========
+        // ========== 播放器拖拽（通用） ==========
         let isDragging = false;
-        let offset = { x:0, y:0 };
+        let offset = { x: 0, y: 0 };
         const player = document.getElementById('musicPlayer');
         const dragHandle = document.getElementById('dragHandle');
 
@@ -1319,7 +1345,7 @@
             player.style.transform = 'none';
         }
 
-        function endDrag(e) {
+        function endDrag() {
             if (isDragging) {
                 isDragging = false;
                 player.classList.remove('dragging');
@@ -1329,7 +1355,6 @@
         dragHandle.addEventListener('mousedown', startDrag);
         document.addEventListener('mousemove', moveDrag);
         document.addEventListener('mouseup', endDrag);
-
         dragHandle.addEventListener('touchstart', startDrag, { passive: false });
         document.addEventListener('touchmove', moveDrag, { passive: false });
         document.addEventListener('touchend', endDrag);
