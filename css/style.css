@@ -656,3 +656,26 @@ body {
     60% { transform: translateX(-5px); }
     80% { transform: translateX(5px); }
 }
+/* 爱心脉动 */
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.2); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.15); }
+    70% { transform: scale(1); }
+}
+
+/* 箭头浮动 */
+@keyframes arrow-float {
+    0%, 100% { transform: translate(-50%, -50%) rotate(-30deg) translateY(0); }
+    50% { transform: translate(-50%, -50%) rotate(-25deg) translateY(-5px); }
+}
+
+/* 按钮悬停放大 */
+#loveEntryBtn:hover > div {
+    transform: scale(1.1);
+}
+#loveEntryBtn:hover span {
+    color: #fff;
+    border-color: var(--primary);
+}

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>跨时空羁绊测试 · 轮回之爱</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 匹配页面的额外样式（不污染主页） */
+        .match-container {
+            max-width: 800px;
+            margin: 80px auto;
+            padding: 2rem;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 60px rgba(46,213,115,0.2);
+        }
+        .match-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .match-header h1 {
+            color: var(--accent);
+            font-weight: 300;
+            letter-spacing: 6px;
+            text-shadow: var(--glow-accent);
+        }
+        .match-header .sub {
+            color: #aaa;
+            margin-top: 0.5rem;
+        }
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 1.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 30px;
+            margin-bottom: 1.5rem;
+            color: #ccc;
+        }
+        .user-info span:last-child {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        /* 匹配状态区域（复用之前的样式） */
+        #matchStatusArea {
+            text-align: center;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .waiting-spinner {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+        .waiting-spinner > div {
+            position: absolute;
+            border-radius: 50%;
+            border: 4px solid;
+            animation: spin linear infinite;
+        }
+        .waiting-spinner .ring1 {
+            width: 120px; height: 120px;
+            border-color: var(--secondary);
+            animation-duration: 2s;
+            box-shadow: 0 0 40px var(--secondary);
+        }
+        .waiting-spinner .ring2 {
+            width: 90px; height: 90px;
+            border-color: var(--primary);
+            top: 15px; left: 15px;
+            animation-duration: 1.5s;
+            animation-direction: reverse;
+            box-shadow: 0 0 30px var(--primary);
+        }
+        .waiting-spinner .ring3 {
+            width: 60px; height: 60px;
+            border-color: var(--accent);
+            top: 30px; left: 30px;
+            animation-duration: 1s;
+            box-shadow: 0 0 20px var(--accent);
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .match-success .partner-card {
+            background: rgba(255,255,255,0.05);
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin-top: 1.5rem;
+            width: 100%;
+            text-align: left;
+        }
+        .match-success .partner-card .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .match-success .partner-card .row:last-child {
+            border-bottom: none;
+        }
+        .back-btn {
+            margin-top: 2rem;
+            background: transparent;
+            border: 1px solid #666;
+            color: #aaa;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .back-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        #binaryStarCanvas {
+            max-width: 100%;
+            border-radius: 20px;
+            background: radial-gradient(ellipse at center, #0a0a2e, #000);
+            box-shadow: 0 0 60px rgba(46,213,115,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="match-container">
+        <div class="match-header">
+            <h1>✦ 跨时空羁绊测试 ✦</h1>
+            <div class="sub">寻找与你命运相连的双星</div>
+        </div>
+
+        <!-- 用户信息 -->
+        <div class="user-info">
+            <span>🌌 我的轮回序号</span>
+            <span id="myCycleDisplay">#???</span>
+        </div>
+
+        <!-- 匹配状态区域 -->
+        <div id="matchStatusArea">
+            <!-- 空闲状态 -->
+            <div id="matchIdle">
+                <button id="startMatchBtn" class="control-btn" style="width: 200px; height: 60px; font-size: 1.2rem; border-radius: 50px; background: linear-gradient(45deg, var(--accent), var(--primary));">
+                    ✨ 开始匹配
+                </button>
+                <p style="color: #888; margin-top: 1rem;">点击按钮，寻找跨越星海的羁绊</p>
+            </div>
+
+            <!-- 等待状态 -->
+            <div id="matchWaiting" style="display:none;">
+                <div class="waiting-spinner">
+                    <div class="ring1"></div>
+                    <div class="ring2"></div>
+                    <div class="ring3"></div>
+                </div>
+                <p style="color: var(--accent); font-size: 1.2rem; margin-top: 1.5rem;">⏳ 正在寻找跨越星海的羁绊...</p>
+                <p style="color: #666;">已有 <span id="waitingCount">0</span> 位觉醒者在等待</p>
+                <button class="back-btn" id="cancelMatchBtn">取消匹配</button>
+            </div>
+
+            <!-- 匹配成功 -->
+            <div id="matchSuccess" style="display:none;" class="match-success">
+                <canvas id="binaryStarCanvas" width="400" height="250"></canvas>
+                <div class="partner-card">
+                    <div class="row"><span>✨ 觉醒者</span><strong id="partnerName" style="color: var(--primary);">未知</strong></div>
+                    <div class="row"><span>🌍 坐标</span><span id="partnerLocation" style="color: var(--accent);">未知</span></div>
+                    <div class="row"><span>🌀 轮回序号</span><span id="partnerCycle" style="color: var(--highlight);">#???</span></div>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+                    <button id="chatNowBtn" class="control-btn" style="width: 160px; height: 50px; font-size: 1rem; border-radius: 30px; background: linear-gradient(45deg, var(--accent), #1e90ff);">💬 进入聊天</button>
+                    <button id="rematchBtn" class="control-btn" style="width: 160px; height: 50px; font-size: 1rem; border-radius: 30px; background: linear-gradient(45deg, #ff6b81, var(--primary));">🔄 再次匹配</button>
+                </div>
+                <button class="back-btn" id="backToHomeBtn">🏠 返回主页</button>
+            </div>
+
+            <!-- 匹配错误 -->
+            <div id="matchError" style="display:none;">
+                <p style="color: var(--primary);">⚠️ 匹配超时或发生错误</p>
+                <button id="retryMatchBtn" class="control-btn" style="width: 120px; height: 40px; font-size: 0.9rem; border-radius: 30px;">重试</button>
+                <button class="back-btn" id="backToHomeErrorBtn">返回主页</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入外部 JS -->
+    <script src="js/match.js"></script>
+</body>
+</html>

@@ -1,194 +1,251 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>轮回之爱 · 永恒羁绊</title>
-    <!-- 引入外部 CSS -->
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-    <!-- 安全防护层 -->
-    <div class="anti-inspect" id="antiInspect">
-        <div class="warning-icon">⚠️</div>
-        <div class="warning-text">
-            <h3>🔐 安全警告</h3>
-            <p>检测到开发者工具已打开！页面已锁定。</p>
-            <p>请关闭工具并刷新页面。</p>
-        </div>
-    </div>
-    <div class="obfuscation-layer"></div>
-    <div class="keyboard-watcher" id="keyboardWatcher">监控中...</div>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<title>轮回之爱 · 永恒羁绊</title>
+		<!-- 引入外部 CSS -->
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+	<body>
+		<!-- 安全防护层 -->
+		<div class="anti-inspect" id="antiInspect">
+			<div class="warning-icon">⚠️</div>
+			<div class="warning-text">
+				<h3>🔐 安全警告</h3>
+				<p>检测到开发者工具已打开！页面已锁定。</p>
+				<p>请关闭工具并刷新页面。</p>
+			</div>
+		</div>
+		<div class="obfuscation-layer"></div>
+		<div class="keyboard-watcher" id="keyboardWatcher">监控中...</div>
 
-    <!-- 密码保护界面 -->
-    <div class="protected-screen" id="protectedScreen">
-        <div class="title">轮回之爱</div>
-        <div class="password-form">
-            <input type="text" class="password-input" id="passwordInput" value="祝学友哥与Vivi姐永世幸福" placeholder="请输入中文祝福语..." onkeypress="checkEnter(event)" autocomplete="off">
-            <button class="submit-btn" onclick="checkPassword()" id="submitBtn">解锁内容</button>
-        </div>
-        <div class="hint">
-            💡 提示：密码是一句包含“学友哥”和“Vivi姐”的中文祝福语<br>
-            🔒 例如：祝学友哥与Vivi姐永世幸福<br>
-            🎵 解锁后自动播放《克卜勒》<br>
-            🚫 请勿使用 Ctrl+S 或开发者工具
-        </div>
-        <div class="error-message" id="errorMessage">密码错误，请重试</div>
-    </div>
+		<!-- 密码保护界面 -->
+		<div class="protected-screen" id="protectedScreen">
+			<div class="title">轮回之爱</div>
+			<div class="password-form">
+				<input type="text" class="password-input" id="passwordInput" value="祝学友哥与Vivi姐永世幸福"
+					placeholder="请输入中文祝福语..." onkeypress="checkEnter(event)" autocomplete="off">
+				<button class="submit-btn" onclick="checkPassword()" id="submitBtn">解锁内容</button>
+			</div>
+			<div class="hint">
+				💡 提示：密码是一句包含“学友哥”和“Vivi姐”的中文祝福语<br>
+				🔒 例如：祝学友哥与Vivi姐永世幸福<br>
+				🎵 解锁后自动播放《克卜勒》<br>
+				🚫 请勿使用 Ctrl+S 或开发者工具
+			</div>
+			<div class="error-message" id="errorMessage">密码错误，请重试</div>
+		</div>
 
-    <!-- 火影瞳术特效 -->
-    <div class="eye-container left-top">
-        <div class="rinnegan-circle"></div><div class="rinnegan-circle"></div><div class="rinnegan-circle"></div><div class="rinnegan-circle"></div>
-    </div>
-    <div class="eye-container right-top">
-        <div class="sharingan-inner">
-            <div class="tomaloe"></div><div class="tomaloe"></div><div class="tomaloe"></div>
-        </div>
-    </div>
-    <div class="eye-container bottom-center">
-        <div class="byakugan-inner">
-            <div class="byakugan-circle"></div><div class="byakugan-circle"></div><div class="byakugan-circle"></div>
-        </div>
-    </div>
+		<!-- 火影瞳术特效 -->
+		<div class="eye-container left-top">
+			<div class="rinnegan-circle"></div>
+			<div class="rinnegan-circle"></div>
+			<div class="rinnegan-circle"></div>
+			<div class="rinnegan-circle"></div>
+		</div>
+		<div class="eye-container right-top">
+			<div class="sharingan-inner">
+				<div class="tomaloe"></div>
+				<div class="tomaloe"></div>
+				<div class="tomaloe"></div>
+			</div>
+		</div>
+		<div class="eye-container bottom-center">
+			<div class="byakugan-inner">
+				<div class="byakugan-circle"></div>
+				<div class="byakugan-circle"></div>
+				<div class="byakugan-circle"></div>
+			</div>
+		</div>
 
-    <!-- 按钮与计数器 -->
-    <button class="bigbang-trigger" onclick="triggerBigBang()">💥 触发宇宙大爆炸</button>
-    <div class="cycle-counter" id="cycleCounter">轮回次数: <span id="currentCycle">0</span></div>
+		<!-- 按钮与计数器 -->
+		<button class="bigbang-trigger" onclick="triggerBigBang()">💥 触发宇宙大爆炸</button>
+		<div class="cycle-counter" id="cycleCounter">轮回次数: <span id="currentCycle">0</span></div>
+		<!-- 宇宙背景 -->
+		<div class="universe" id="universe"></div>
 
-    <!-- 宇宙背景 -->
-    <div class="universe" id="universe"></div>
+		<!-- 宇宙特效 Canvas -->
+		<canvas id="cosmicCanvas"></canvas>
 
-    <!-- 宇宙特效 Canvas -->
-    <canvas id="cosmicCanvas"></canvas>
+		<!-- 音乐播放器 -->
+		<div class="music-player" id="musicPlayer">
+			<div class="music-header" id="dragHandle">
+				<span>🎵 孙燕姿 - 克卜勒</span>
+				<button class="control-btn lyrics-toggle" id="lyricsToggleBtn">📝</button>
+			</div>
+			<div class="time-display">
+				<span id="currentTime">0:00</span>
+				<span id="duration">4:09</span>
+			</div>
+			<div class="progress-container" id="progressContainer">
+				<div class="progress-bar" id="progressBar"></div>
+				<div class="progress-handle" id="progressHandle"></div>
+			</div>
+			<div class="music-controls">
+				<button class="control-btn" onclick="skipBackward()">⏪</button>
+				<button class="control-btn" onclick="playPause()" id="playPauseBtn">▶️</button>
+				<button class="control-btn" onclick="skipForward()">⏩</button>
+			</div>
+			<div class="volume-control">
+				<span>🔊</span>
+				<input type="range" id="volumeControl" min="0" max="1" step="0.1" value="0.7">
+				<span id="volumeValue">70%</span>
+			</div>
+		</div>
 
-    <!-- 音乐播放器 -->
-    <div class="music-player" id="musicPlayer">
-        <div class="music-header" id="dragHandle">
-            <span>🎵 孙燕姿 - 克卜勒</span>
-            <button class="control-btn lyrics-toggle" id="lyricsToggleBtn">📝</button>
-        </div>
-        <div class="time-display">
-            <span id="currentTime">0:00</span>
-            <span id="duration">4:09</span>
-        </div>
-        <div class="progress-container" id="progressContainer">
-            <div class="progress-bar" id="progressBar"></div>
-            <div class="progress-handle" id="progressHandle"></div>
-        </div>
-        <div class="music-controls">
-            <button class="control-btn" onclick="skipBackward()">⏪</button>
-            <button class="control-btn" onclick="playPause()" id="playPauseBtn">▶️</button>
-            <button class="control-btn" onclick="skipForward()">⏩</button>
-        </div>
-        <div class="volume-control">
-            <span>🔊</span>
-            <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="0.7">
-            <span id="volumeValue">70%</span>
-        </div>
-    </div>
+		<!-- 歌词显示 -->
+		<div class="lyrics-container" id="lyricsContainer">
+			<button class="lyrics-close" id="lyricsCloseBtn">×</button>
+			<div class="current-lyric" id="currentLyric">等不到你 成为我最闪亮的星星</div>
+			<div class="next-lyric" id="nextLyric">我依然愿意借给你我的光</div>
+		</div>
 
-    <!-- 歌词显示 -->
-    <div class="lyrics-container" id="lyricsContainer">
-        <button class="lyrics-close" id="lyricsCloseBtn">×</button>
-        <div class="current-lyric" id="currentLyric">等不到你 成为我最闪亮的星星</div>
-        <div class="next-lyric" id="nextLyric">我依然愿意借给你我的光</div>
-    </div>
+		<!-- 主内容 -->
+		<div class="container">
+			<div class="code-display">
+				<div id="userCountDisplay"
+					style="display:none; color: var(--accent); font-size: 1.2rem; margin-top: 10px; text-shadow: var(--glow-accent);;">
+					🌟 您是第 <span id="userCountNumber"></span> 次轮回的觉醒者
+				</div>
+				<span class="code-comment">/**</span><br>
+				<span class="code-comment"> * 无限月读·轮回之爱</span><br>
+				<span class="code-comment"> * 创作者: 学友哥 (六道仙人转世)</span><br>
+				<span class="code-comment"> * 时间: 从创世之初到世界终结</span><br>
+				<span class="code-comment"> * 描述: 跨越多元宇宙的羁绊，每27年一次的轮回重生</span><br>
+				<span class="code-comment"> * 背景音乐: 孙燕姿《克卜勒》- 唤醒之歌</span><br>
+				<span class="code-comment"> */</span><br>
+				<br>
+				<span class="code-keyword">const</span> 六道仙人 = <span class="code-string">"学友哥"</span>;<br>
+				<span class="code-keyword">const</span> 辉夜姬 = <span class="code-string">"Vivi姐"</span>;<br>
+				<span class="code-keyword">const</span> 轮回周期 = <span class="code-number">27</span>; <span
+					class="code-comment">// 年 - 火影中的轮回周期</span><br>
+				<span class="code-keyword">const</span> 唤醒歌曲 = <span class="code-string">"孙燕姿 - 克卜勒"</span>;<br>
+				<br>
+				<span class="code-comment">// 燕姿音乐系统 - 纪念KTV唤醒的瞬间</span><br>
+				<span class="code-keyword">class</span> 燕姿音乐系统 {<br>
+				<span class="code-indent"><span class="code-function">constructor</span>() {</span><br>
+				<span class="code-indent"><span class="code-indent">this.歌曲列表 = [</span></span><br>
+				<span class="code-indent"><span class="code-indent"><span class="code-indent">{ 名称: <span
+								class="code-string">"克卜勒"</span>, 主题: <span class="code-string">"宇宙与命运"</span>
+							},</span></span><br>
+					<span class="code-indent"><span class="code-indent"><span class="code-indent">{ 名称: <span
+									class="code-string">"遇见"</span>, 主题: <span class="code-string">"缘分与相遇"</span>
+								},</span></span><br>
+						<span class="code-indent"><span class="code-indent"><span class="code-indent">{ 名称: <span
+										class="code-string">"开始懂了"</span>, 主题: <span class="code-string">"成长与领悟"</span>
+									}</span></span><br>
+							<span class="code-indent"><span class="code-indent">];</span></span><br>
+							<span class="code-indent"><span class="code-indent">this.当前歌曲 = 0;</span></span><br>
+							<span class="code-indent">}</span><br>
+							<span class="code-indent">播放唤醒之歌() {</span><br>
+							<span class="code-indent"><span class="code-indent">console.log(<span
+										class="code-string">"🎵 被孙燕姿的歌声唤醒..."</span>);</span></span><br>
+							<span class="code-indent"><span class="code-indent">触发大爆炸();</span></span><br>
+							<span class="code-indent"><span class="code-indent">return <span
+										class="code-string">"音乐的力量穿越轮回"</span>;</span></span><br>
+							<span class="code-indent">}</span><br>
+							}<br>
+							<br>
+							<span class="code-comment">// 六道模式·开启</span><br>
+							<span class="code-keyword">class</span> 六道模式 {<br>
+							<span class="code-indent"><span class="code-function">constructor</span>() {</span><br>
+							<span class="code-indent"><span class="code-indent">this.轮回眼 = true;</span></span><br>
+							<span class="code-indent"><span class="code-indent">this.求道玉 = 9;</span></span><br>
+							<span class="code-indent"><span class="code-indent">this.背景音乐 = new
+									燕姿音乐系统();</span></span><br>
+							<span class="code-indent">}</span><br>
+							<span class="code-indent">无限月读() {</span><br>
+							<span class="code-indent"><span class="code-indent">this.背景音乐.播放唤醒之歌();</span></span><br>
+							<span class="code-indent"><span class="code-indent">return <span
+										class="code-string">"让世界陷入爱的幻术"</span>;</span></span><br>
+							<span class="code-indent">}</span><br>
+							}<br>
+							<br>
+							<span class="code-keyword">const</span> 六道 = <span class="code-keyword">new</span>
+							六道模式();<br>
+							<span class="code-keyword">const</span> 轮回 = <span class="code-keyword">new</span> (class
+							轮回系统 {<br>
+							<span class="code-indent"><span class="code-function">constructor</span>() { this.次数 = 0;
+								}</span><br>
+							<span class="code-indent">宇宙重启() {</span><br>
+							<span class="code-indent"><span class="code-indent">this.次数++;</span></span><br>
+							<span class="code-indent"><span class="code-indent">触发大爆炸视觉效果();</span></span><br>
+							<span class="code-indent"><span class="code-indent">更新轮回显示();</span></span><br>
+							<span class="code-indent"><span class="code-indent">return <span
+										class="code-string">`第${this.次数}次轮回开始`</span>;</span></span><br>
+							<span class="code-indent">}</span><br>
+							})();<br>
+							<br>
+							<span class="code-comment">// 永恒的誓言</span><br>
+							<span class="code-function">function</span> 忍者誓言() {<br>
+							<span class="code-indent">console.log(<span
+									class="code-string">"即使轮回转世，这份羁绊也不会消失！"</span>);</span><br>
+							}<br>
+							<span class="code-comment">// 每27秒模拟一次轮回（演示）</span><br>
+							<span class="code-keyword">setInterval</span>(忍者誓言, 27000);<br>
+			</div>
 
-    <!-- 主内容 -->
-    <div class="container">
-        <div class="code-display">
-            <span class="code-comment">/**</span><br>
-            <span class="code-comment"> * 无限月读·轮回之爱</span><br>
-            <span class="code-comment"> * 创作者: 学友哥 (六道仙人转世)</span><br>
-            <span class="code-comment"> * 时间: 从创世之初到世界终结</span><br>
-            <span class="code-comment"> * 描述: 跨越多元宇宙的羁绊，每27年一次的轮回重生</span><br>
-            <span class="code-comment"> * 背景音乐: 孙燕姿《克卜勒》- 唤醒之歌</span><br>
-            <span class="code-comment"> */</span><br>
-            <br>
-            <span class="code-keyword">const</span> 六道仙人 = <span class="code-string">"学友哥"</span>;<br>
-            <span class="code-keyword">const</span> 辉夜姬 = <span class="code-string">"Vivi姐"</span>;<br>
-            <span class="code-keyword">const</span> 轮回周期 = <span class="code-number">27</span>; <span class="code-comment">// 年 - 火影中的轮回周期</span><br>
-            <span class="code-keyword">const</span> 唤醒歌曲 = <span class="code-string">"孙燕姿 - 克卜勒"</span>;<br>
-            <br>
-            <span class="code-comment">// 燕姿音乐系统 - 纪念KTV唤醒的瞬间</span><br>
-            <span class="code-keyword">class</span> 燕姿音乐系统 {<br>
-            <span class="code-indent"><span class="code-function">constructor</span>() {</span><br>
-            <span class="code-indent"><span class="code-indent">this.歌曲列表 = [</span></span><br>
-            <span class="code-indent"><span class="code-indent"><span class="code-indent">{ 名称: <span class="code-string">"克卜勒"</span>, 主题: <span class="code-string">"宇宙与命运"</span> },</span></span><br>
-            <span class="code-indent"><span class="code-indent"><span class="code-indent">{ 名称: <span class="code-string">"遇见"</span>, 主题: <span class="code-string">"缘分与相遇"</span> },</span></span><br>
-            <span class="code-indent"><span class="code-indent"><span class="code-indent">{ 名称: <span class="code-string">"开始懂了"</span>, 主题: <span class="code-string">"成长与领悟"</span> }</span></span><br>
-            <span class="code-indent"><span class="code-indent">];</span></span><br>
-            <span class="code-indent"><span class="code-indent">this.当前歌曲 = 0;</span></span><br>
-            <span class="code-indent">}</span><br>
-            <span class="code-indent">播放唤醒之歌() {</span><br>
-            <span class="code-indent"><span class="code-indent">console.log(<span class="code-string">"🎵 被孙燕姿的歌声唤醒..."</span>);</span></span><br>
-            <span class="code-indent"><span class="code-indent">触发大爆炸();</span></span><br>
-            <span class="code-indent"><span class="code-indent">return <span class="code-string">"音乐的力量穿越轮回"</span>;</span></span><br>
-            <span class="code-indent">}</span><br>
-            }<br>
-            <br>
-            <span class="code-comment">// 六道模式·开启</span><br>
-            <span class="code-keyword">class</span> 六道模式 {<br>
-            <span class="code-indent"><span class="code-function">constructor</span>() {</span><br>
-            <span class="code-indent"><span class="code-indent">this.轮回眼 = true;</span></span><br>
-            <span class="code-indent"><span class="code-indent">this.求道玉 = 9;</span></span><br>
-            <span class="code-indent"><span class="code-indent">this.背景音乐 = new 燕姿音乐系统();</span></span><br>
-            <span class="code-indent">}</span><br>
-            <span class="code-indent">无限月读() {</span><br>
-            <span class="code-indent"><span class="code-indent">this.背景音乐.播放唤醒之歌();</span></span><br>
-            <span class="code-indent"><span class="code-indent">return <span class="code-string">"让世界陷入爱的幻术"</span>;</span></span><br>
-            <span class="code-indent">}</span><br>
-            }<br>
-            <br>
-            <span class="code-keyword">const</span> 六道 = <span class="code-keyword">new</span> 六道模式();<br>
-            <span class="code-keyword">const</span> 轮回 = <span class="code-keyword">new</span> (class 轮回系统 {<br>
-            <span class="code-indent"><span class="code-function">constructor</span>() { this.次数 = 0; }</span><br>
-            <span class="code-indent">宇宙重启() {</span><br>
-            <span class="code-indent"><span class="code-indent">this.次数++;</span></span><br>
-            <span class="code-indent"><span class="code-indent">触发大爆炸视觉效果();</span></span><br>
-            <span class="code-indent"><span class="code-indent">更新轮回显示();</span></span><br>
-            <span class="code-indent"><span class="code-indent">return <span class="code-string">`第${this.次数}次轮回开始`</span>;</span></span><br>
-            <span class="code-indent">}</span><br>
-            })();<br>
-            <br>
-            <span class="code-comment">// 永恒的誓言</span><br>
-            <span class="code-function">function</span> 忍者誓言() {<br>
-            <span class="code-indent">console.log(<span class="code-string">"即使轮回转世，这份羁绊也不会消失！"</span>);</span><br>
-            }<br>
-            <span class="code-comment">// 每27秒模拟一次轮回（演示）</span><br>
-            <span class="code-keyword">setInterval</span>(忍者誓言, 27000);<br>
-        </div>
+			<!-- 火影经典语录 -->
+			<div class="naruto-quote"
+				style="margin:2rem 0;padding:1.5rem;border-left:4px solid var(--primary);background:rgba(255,71,87,0.05);border-radius:20px;">
+				“言出必行，这就是我的忍道！”<br>—— 漩涡鸣人
+			</div>
 
-        <!-- 火影经典语录 -->
-        <div class="naruto-quote" style="margin:2rem 0;padding:1.5rem;border-left:4px solid var(--primary);background:rgba(255,71,87,0.05);border-radius:20px;">
-            “言出必行，这就是我的忍道！”<br>—— 漩涡鸣人
-        </div>
+			<!-- 时间线事件（中文版） -->
+			<div class="timeline-event"
+				style="background:rgba(138,43,226,0.1);border-left-color:var(--secondary);margin:1rem 0;padding:1rem;">
+				🌌 纪元1：六道仙人开创忍宗，爱的查克拉首次出现
+			</div>
+			<div class="timeline-event" style="background:rgba(46,213,115,0.1);border-left-color:var(--accent);">
+				🎵 特殊事件：在KTV被孙燕姿歌声唤醒，命运之轮开始转动
+			</div>
+			<div class="timeline-event" style="background:rgba(255,165,2,0.1);border-left-color:var(--highlight);">
+				💫 纪元27：第一次轮回，辉夜现身，无限月读发动
+			</div>
+			<div class="timeline-event" style="background:rgba(255,71,87,0.1);border-left-color:var(--primary);">
+				❤️ 当前纪元：代码与查克拉融合，在数字世界创造永恒之爱
+			</div>
+		</div>
 
-        <!-- 时间线事件（中文版） -->
-        <div class="timeline-event" style="background:rgba(138,43,226,0.1);border-left-color:var(--secondary);margin:1rem 0;padding:1rem;">
-            🌌 纪元1：六道仙人开创忍宗，爱的查克拉首次出现
-        </div>
-        <div class="timeline-event" style="background:rgba(46,213,115,0.1);border-left-color:var(--accent);">
-            🎵 特殊事件：在KTV被孙燕姿歌声唤醒，命运之轮开始转动
-        </div>
-        <div class="timeline-event" style="background:rgba(255,165,2,0.1);border-left-color:var(--highlight);">
-            💫 纪元27：第一次轮回，辉夜现身，无限月读发动
-        </div>
-        <div class="timeline-event" style="background:rgba(255,71,87,0.1);border-left-color:var(--primary);">
-            ❤️ 当前纪元：代码与查克拉融合，在数字世界创造永恒之爱
-        </div>
-    </div>
+		<!-- 大爆炸效果元素 -->
+		<div class="big-bang" id="bigBang"></div>
 
-    <!-- 大爆炸效果元素 -->
-    <div class="big-bang" id="bigBang"></div>
-
-    <!-- 音频 -->
-    <audio id="backgroundMusic" preload="auto">
-        <source src="music/yanzi-kepule.ogg" type="audio/mp3">
-        您的浏览器不支持音频播放
-    </audio>
-
-    <!-- 引入外部 JavaScript -->
-    <script src="js/script.js"></script>
-</body>
+		<!-- 音频 -->
+		<audio id="backgroundMusic" preload="auto">
+			<source src="music/yanzi-kepule.ogg" type="audio/mp3">
+			您的浏览器不支持音频播放
+		</audio>
+		<div id="loveEntryBtn" style="display:none; position: fixed; bottom: 100px; right: 20px; z-index: 200; cursor: pointer; text-align: center;" onclick="goToMatch()">
+		    <div style="
+		        width: 70px; height: 70px;
+		        border-radius: 50%;
+		        background: radial-gradient(circle at 30% 30%, #ff6b81, var(--primary));
+		        display: flex;
+		        align-items: center;
+		        justify-content: center;
+		        font-size: 2.8rem;
+		        box-shadow: 0 0 30px rgba(255,71,87,0.5);
+		        animation: heartbeat 1.2s ease-in-out infinite;
+		        transition: transform 0.3s;
+		    ">
+		        ❤️‍🔥
+		    </div>
+		    <span style="
+		        display: block;
+		        margin-top: 4px;
+		        font-size: 0.65rem;
+		        color: #ccc;
+		        background: rgba(0,0,0,0.6);
+		        padding: 2px 12px;
+		        border-radius: 20px;
+		        backdrop-filter: blur(4px);
+		        border: 1px solid rgba(255,255,255,0.1);
+		    ">羁绊测试</span>
+		</div>
+		<!-- 引入外部 JavaScript -->
+		<!-- 在 <head> 或 <body> 末尾引入 -->
+		<script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+		<script src="js/script.js"></script>
+	</body>
 </html>
