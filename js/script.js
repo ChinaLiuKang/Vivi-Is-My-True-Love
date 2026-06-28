@@ -10,8 +10,8 @@ let debugUnlocked = false;
 const TOKEN_KEY = 'love_cycle_token';
 const USER_COUNT_KEY = 'love_cycle_userCount';
 // 请求地址
-//const httpUrl = 'https://truelove.dongdongxunji.com'
-const httpUrl = 'http://127.0.0.1:9898'
+const httpUrl = 'https://truelove.dongdongxunji.com'
+//const httpUrl = 'http://127.0.0.1:9898'
 // 存储 token 和 userCount
 function saveAuth(token, userCount) {
 	if (token) localStorage.setItem(TOKEN_KEY, token);
