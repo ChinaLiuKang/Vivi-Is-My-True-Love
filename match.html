@@ -6,8 +6,25 @@
     <title>跨时空羁绊测试 · 轮回之爱</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* 匹配页面的额外样式（不污染主页） */
+        /* 强制覆盖主页样式，让背景显示 */
+        #cosmicCanvas {
+            display: block !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .universe {
+            display: block !important;
+            z-index: 0;
+        }
+        /* 匹配容器在背景之上 */
         .match-container {
+            position: relative;
+            z-index: 10;
             max-width: 800px;
             margin: 80px auto;
             padding: 2rem;
@@ -44,7 +61,6 @@
             color: var(--primary);
             font-weight: bold;
         }
-        /* 匹配状态区域（复用之前的样式） */
         #matchStatusArea {
             text-align: center;
             min-height: 300px;
@@ -66,23 +82,28 @@
             animation: spin linear infinite;
         }
         .waiting-spinner .ring1 {
-            width: 120px; height: 120px;
+            width: 120px;
+            height: 120px;
             border-color: var(--secondary);
             animation-duration: 2s;
             box-shadow: 0 0 40px var(--secondary);
         }
         .waiting-spinner .ring2 {
-            width: 90px; height: 90px;
+            width: 90px;
+            height: 90px;
             border-color: var(--primary);
-            top: 15px; left: 15px;
+            top: 15px;
+            left: 15px;
             animation-duration: 1.5s;
             animation-direction: reverse;
             box-shadow: 0 0 30px var(--primary);
         }
         .waiting-spinner .ring3 {
-            width: 60px; height: 60px;
+            width: 60px;
+            height: 60px;
             border-color: var(--accent);
-            top: 30px; left: 30px;
+            top: 30px;
+            left: 30px;
             animation-duration: 1s;
             box-shadow: 0 0 20px var(--accent);
         }
@@ -127,9 +148,95 @@
             background: radial-gradient(ellipse at center, #0a0a2e, #000);
             box-shadow: 0 0 60px rgba(46,213,115,0.1);
         }
+        /* 隐藏主页的眼睛 */
+        .eye-container {
+            display: none !important;
+        }
+        /* 确保匹配容器内文字清晰 */
+        .match-container * {
+            color: #fff;
+        }
+        .match-container .control-btn {
+            color: #fff;
+        }
+
+        /* ========== 悬浮返回按钮（我爱罗风格） ========== */
+        .float-back-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ff6b81, #c0392b);
+            box-shadow: 0 0 30px rgba(255,71,87,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            animation: float 3s ease-in-out infinite, pulse-glow 2s infinite alternate;
+            transition: transform 0.3s;
+            border: none;
+            outline: none;
+        }
+        .float-back-btn:hover {
+            transform: scale(1.1);
+        }
+        .float-back-btn .eye-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+            line-height: 1;
+        }
+        .float-back-btn .ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+            animation: spin 8s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 20px rgba(255,71,87,0.4); }
+            100% { box-shadow: 0 0 60px rgba(255,71,87,0.8); }
+        }
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .float-back-btn {
+                width: 60px;
+                height: 60px;
+                bottom: 20px;
+                right: 20px;
+            }
+            .float-back-btn .eye-icon {
+                font-size: 2rem;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- ========== 安全防护层（与主页一致） ========== -->
+    <div class="anti-inspect" id="antiInspect">
+        <div class="warning-icon">⚠️</div>
+        <div class="warning-text">
+            <h3>🔐 安全警告</h3>
+            <p>检测到开发者工具已打开！页面已锁定。</p>
+            <p>请关闭工具并刷新页面。</p>
+        </div>
+    </div>
+    <div class="obfuscation-layer"></div>
+    <div class="keyboard-watcher" id="keyboardWatcher">监控中...</div>
+
+    <!-- ========== 背景系统（与主页一致） ========== -->
+    <div class="universe" id="universe"></div>
+    <canvas id="cosmicCanvas"></canvas>
+
+    <!-- ========== 匹配内容 ========== -->
     <div class="match-container">
         <div class="match-header">
             <h1>✦ 跨时空羁绊测试 ✦</h1>
@@ -186,6 +293,12 @@
                 <button class="back-btn" id="backToHomeErrorBtn">返回主页</button>
             </div>
         </div>
+    </div>
+
+    <!-- ========== 悬浮返回按钮（我爱罗风格） ========== -->
+    <div id="floatBackBtn" class="float-back-btn" onclick="goBackHome()" title="返回主页">
+        <div class="eye-icon">👁️‍🗨️</div>
+        <div class="ring"></div>
     </div>
 
     <!-- 引入外部 JS -->

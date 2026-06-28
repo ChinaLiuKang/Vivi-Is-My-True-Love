@@ -10,7 +10,8 @@ let debugUnlocked = false;
 const TOKEN_KEY = 'love_cycle_token';
 const USER_COUNT_KEY = 'love_cycle_userCount';
 // 请求地址
-const httpUrl = 'https://truelove.dongdongxunji.com'
+//const httpUrl = 'https://truelove.dongdongxunji.com'
+const httpUrl = 'http://127.0.0.1:9898'
 // 存储 token 和 userCount
 function saveAuth(token, userCount) {
 	if (token) localStorage.setItem(TOKEN_KEY, token);
@@ -895,6 +896,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (userCount) showUserCount(userCount);
 		// 可选：验证 token 有效性（调用 /api/verify 等）
 	} else {
+		 document.getElementById('protectedScreen').style.display = 'block';
 		// 没有 token，显示密码界面（默认显示）
 		// 如果你的密码框默认是显示的，则无需额外操作
 	}

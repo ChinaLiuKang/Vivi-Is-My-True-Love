@@ -86,6 +86,7 @@ body {
 
 /* ========== 密码保护界面 ========== */
 .protected-screen {
+	display: none;  /* 新增或修改为 none */
     position: fixed;
     top: 50%;
     left: 50%;
